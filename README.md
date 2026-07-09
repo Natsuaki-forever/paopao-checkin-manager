@@ -1,6 +1,10 @@
 ﻿# 炮炮签到站 · Paopao Checkin Manager
 多用户网页签到管理器。自动完成论坛、网站等日常签到任务，支持模板自定义、定时执行、失败重试与通知推送。
 部署在自己的电脑或服务器上，通过浏览器访问管理面板操作。
+
+![登录界面](docs/screenshots/auth.png)
+
+![管理面板](docs/screenshots/dashboard.png)
 ## 本地运行
 ```bash
 git clone https://github.com/Natsuaki-forever/paopao-checkin-manager.git
