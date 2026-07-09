@@ -10,13 +10,13 @@ cd app
 npm ci
 npm run dev
 ```
-打开 http://127.0.0.1:5173，首次访问创建主密码（至少 10 个字符）后即可使用。
+打开 `http://127.0.0.1:5173`，首次访问创建主密码（至少 10 个字符）后即可使用。
 ## Docker 部署
 ```bash
 cd app
 docker compose -f docker-compose.production.yml up -d --build
 ```
-服务运行在 http://127.0.0.1:8787。
+服务运行在 `http://127.0.0.1:8787`。
 ## 核心能力
 - **自动化签到** — 浏览器表单填写、Cookie 会话复用、定时调度、失败重试
 - **多用户体系** — 主管理员 / 运营管理员 / 普通用户三层权限，支持邀请注册
@@ -35,3 +35,4 @@ docker compose -f docker-compose.production.yml up -d --build
 - [完整开发参考](docs/REFERENCE.md)
 - [项目概览](docs/PROJECT_OVERVIEW.md)
 - [版本变更](CHANGELOG.md)
+
