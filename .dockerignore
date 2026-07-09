@@ -1,0 +1,8 @@
+node_modules
+.npm-cache
+dist
+.env
+data
+logs
+screenshots
+.git

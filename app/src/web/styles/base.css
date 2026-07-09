@@ -1,0 +1,106 @@
+html, body, #root { min-height: 100%; }
+html { background: var(--bg); }
+body {
+  min-width: 320px;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  text-rendering: optimizeLegibility;
+}
+button, input, select, textarea, table { font-family: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+input, select, textarea {
+  border-color: var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text);
+}
+input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--muted) 82%, transparent); }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cyan) 18%, transparent);
+}
+.numeric, time, .metric strong, .sidebar-footer, .summary-item strong { font-family: var(--font-numeric); font-variant-numeric: tabular-nums; }
+.button { border-radius: var(--radius-control); transition: background var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast), transform 80ms; }
+.button-primary { border-color: var(--accent); background: var(--accent); color: #f8fbff; box-shadow: 0 7px 18px color-mix(in srgb, var(--accent) 20%, transparent); }
+.button-primary:hover { border-color: var(--accent-hover); background: var(--accent-hover); }
+.button-outline { border-color: var(--line); background: var(--surface); color: var(--accent); }
+.button-outline:hover { border-color: var(--accent); background: var(--accent-soft); }
+.button-danger { border-color: color-mix(in srgb, var(--danger) 72%, var(--line)); background: transparent; color: var(--danger); }
+.button-danger:hover { background: color-mix(in srgb, var(--danger) 11%, transparent); }
+.text-link { display: inline-flex; align-items: center; gap: 4px; color: var(--accent); }
+.page-stack { gap: 24px; }
+.page-heading { min-height: 52px; }
+.page-heading h1 { color: var(--text); font-size: clamp(28px, 2.15vw, 34px); font-weight: 720; letter-spacing: -.035em; }
+.page-subtitle { color: var(--muted); }
+.panel { border-color: var(--line); border-radius: var(--radius-panel); background: var(--surface); box-shadow: none; }
+.status { color: var(--muted); }
+.status-success { color: var(--success); }
+.status-warning { color: var(--warning); }
+.status-danger { color: var(--danger); }
+.status .status-dot + * { color: currentColor; }
+.status-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 6px;
+  color: var(--warning);
+  font-weight: 700;
+  line-height: 1.35;
+}
+.status-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-badge.status-success { color: var(--success); }
+.status-badge.status-failure { color: var(--danger); }
+.status-badge.status-pending { color: var(--warning); }
+.channel-help,
+.template-preview,
+.template-summary,
+.advanced-template,
+.inline-info,
+.security-note,
+.storage-meter,
+.manual-picker-panel,
+.proxy-test-note,
+.detail-message p {
+  border-color: var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+}
+.channel-help strong,
+.storage-meter-heading span,
+.har-empty strong,
+.template-summary strong { color: var(--text); }
+.channel-help span,
+.preview-card small,
+.storage-facts,
+.storage-meter p,
+.variables-label { color: var(--muted); }
+.variables-row button {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--accent);
+}
+.theme-toggle {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--muted);
+}
+.theme-toggle select { color: var(--text); }
+.empty-state { display: grid; justify-items: center; gap: 10px; padding: 42px 20px; color: var(--muted); }
+.empty-state strong { color: var(--text); font-size: 17px; }
+.empty-state p { margin: 0; }
+.skeleton { background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%); background-size: 200% 100%; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

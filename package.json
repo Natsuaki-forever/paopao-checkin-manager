@@ -1,0 +1,29 @@
+{
+  "name": "paopao-checkin-manager",
+  "version": "0.7.5",
+  "private": true,
+  "description": "炮炮签到站（Paopao Checkin Manager）",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "checkin": "tsx src/cli.ts",
+    "scheduler": "tsx src/scheduler.ts",
+    "start:checkin": "node dist/src/cli.js",
+    "start:scheduler": "node dist/src/scheduler.js",
+    "test": "npm run build && node --test dist/tests/*.test.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "dotenv": "16.6.1",
+    "node-cron": "^4.4.0",
+    "playwright": "1.61.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.21",
+    "tsx": "4.22.4",
+    "typescript": "5.9.3"
+  }
+}

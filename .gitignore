@@ -1,0 +1,14 @@
+node_modules/
+.npm-cache/
+dist/
+.env
+.env.before-recreate-*
+data/*
+!data/.gitkeep
+logs/*
+!logs/.gitkeep
+screenshots/*
+!screenshots/.gitkeep
+.codex-auth-4k.png
+.codex-settings-dark.png
+.codex-docx-images/
