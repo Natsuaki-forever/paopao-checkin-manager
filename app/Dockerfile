@@ -15,6 +15,7 @@ WORKDIR /app/manager
 COPY app/package.json app/package-lock.json ./
 RUN npm ci
 COPY app/index.html app/tsconfig*.json app/vite.config.ts app/vitest.config.ts ./
+COPY app/public ./public
 COPY app/src ./src
 COPY app/tests ./tests
 RUN npm test && npm run build && npm prune --omit=dev
