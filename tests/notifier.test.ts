@@ -45,6 +45,6 @@ describe("notification payloads", () => {
       "https://example.com",
     );
     assert.match(wechat.markdown.content, /自动签到成功/);
-    assert.equal(serverChan.get("title"), "Lynvx 自动签到成功");
+    assert.equal(serverChan.get("title"), "自动签到成功");
   });
 });

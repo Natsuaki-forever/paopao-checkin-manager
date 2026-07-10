@@ -63,7 +63,7 @@ describe("session API", () => {
     expect(imported.json()).toMatchObject({ status: "valid" });
     const state = sessions.get(task.id)!;
     expect(state.cookies).toEqual(expect.arrayContaining([
-      expect.objectContaining({ name: "session_id", domain: "dash.lynvx.info", secure: true }),
+        expect.objectContaining({ name: "session_id", domain: "example.com", secure: true }),
     ]));
 
     const status = await app.inject({ method: "GET", url: `/api/tasks/${task.id}/session`, headers });
@@ -101,7 +101,7 @@ describe("session API", () => {
     expect(submitted.json()).toEqual({ status: "saved" });
     expect(sessions.get(task.id)?.cookies[0]).toMatchObject({
       name: "manual_session",
-      domain: "dash.lynvx.info",
+      domain: "example.com",
     });
 
     const reused = await app.inject({

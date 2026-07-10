@@ -5,9 +5,9 @@ function safeMessage(message: string): string {
 }
 
 function notificationTitle(result: RunResult): string {
-  if (result.status === "success") return "Lynvx 自动签到成功";
-  if (result.status === "already_checked") return "Lynvx 今日已签到";
-  return `Lynvx 自动签到失败：${result.status}`;
+  if (result.status === "success") return "自动签到成功";
+  if (result.status === "already_checked") return "今日已签到";
+  return `自动签到失败：${result.status}`;
 }
 
 export function buildWechatPayload(result: RunResult, targetUrl: string): object {

@@ -36,9 +36,9 @@ export function splitList(
 
 export function loadConfig(cwd = process.cwd()): AppConfig {
   const targetUrl =
-    process.env.TARGET_URL?.trim() || "https://dash.lynvx.info/#/checkin";
+    process.env.TARGET_URL?.trim() || "https://example.com/#/checkin";
   const loginUrl =
-    process.env.LOGIN_URL?.trim() || "https://dash.lynvx.info/#/login";
+    process.env.LOGIN_URL?.trim() || "https://example.com/#/login";
   try {
     new URL(targetUrl);
     new URL(loginUrl);
@@ -53,8 +53,8 @@ export function loadConfig(cwd = process.cwd()): AppConfig {
     cronExpression: process.env.CRON_EXPRESSION?.trim() || "0 0 8 * * *",
     headless: parseBoolean(process.env.HEADLESS, true),
     proxyServer: process.env.PROXY_SERVER?.trim() || undefined,
-    email: process.env.LYNVX_EMAIL?.trim() || undefined,
-    password: process.env.LYNVX_PASSWORD || undefined,
+    email: (process.env.TARGET_EMAIL || process.env.LYNVX_EMAIL)?.trim() || undefined,
+    password: process.env.TARGET_PASSWORD || process.env.LYNVX_PASSWORD || undefined,
     navigationTimeoutMs: parsePositiveInteger(
       "NAVIGATION_TIMEOUT_MS",
       process.env.NAVIGATION_TIMEOUT_MS,

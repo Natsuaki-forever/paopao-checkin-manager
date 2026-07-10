@@ -30,7 +30,7 @@ export function templateStatus(status: RunRecord["status"]): TemplateStatus {
 }
 
 export const sampleTemplateData = {
-  siteName: "Lynvx",
+  siteName: "通用网页登录",
   status: "签到成功",
   message: "模拟签到成功，未访问目标网站",
   finishedAt: "2026-06-29 08:00:12",

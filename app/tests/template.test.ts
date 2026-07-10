@@ -9,11 +9,10 @@ describe("notification templates", () => {
   it("renders only supported variables", () => {
     expect(
       renderTemplate("{{siteName}}：{{message}}", sampleTemplateData),
-    ).toBe("Lynvx：模拟签到成功，未访问目标网站");
+    ).toBe("通用网页登录：模拟签到成功，未访问目标网站");
   });
 
   it("rejects unknown variables", () => {
     expect(() => validateTemplate("{{password}}")).toThrow(/不支持/);
   });
 });
-

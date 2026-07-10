@@ -29,8 +29,8 @@ describe("config", () => {
   });
 
   it("loads credentials without trimming the password", () => {
-    process.env.LYNVX_EMAIL = " user@example.com ";
-    process.env.LYNVX_PASSWORD = " password with spaces ";
+    process.env.TARGET_EMAIL = " user@example.com ";
+    process.env.TARGET_PASSWORD = " password with spaces ";
     const config = loadConfig();
     assert.equal(config.email, "user@example.com");
     assert.equal(config.password, " password with spaces ");

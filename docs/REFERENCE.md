@@ -70,7 +70,7 @@ npm start
 正式容器重建前必须在项目根目录运行：
 
 ```bash
-./scripts/preserve-production-flags.sh
+使用线下维护的部署脚本保留生产环境开关；该脚本不随公开仓库发布。
 ```
 
 该脚本会从现有容器读取并保留全部 `CHECKIN_FEATURE_*` 与 `CHECKIN_ALLOW_REGISTRATION`，备份并合并到 `app/.env`。只允许合并目标变量，禁止为了新增单个变量覆盖整个 `.env`。
@@ -85,7 +85,7 @@ npm start
 powershell -ExecutionPolicy Bypass -File .\scripts\deploy-production.ps1
 ```
 
-脚本会自动从工作区根目录查找部署密钥 `.codex-temp-deploy/lynvx_deploy_ed25519`，也可通过 `PAOPAO_PROD_SSH_KEY` 指定其它密钥；它会生成发布包、上传到正式服务器、备份源码与数据、保留功能开关、重建容器并做健康检查。不得再手写分散的 `ssh`/`scp` 命令绕过这条发布路径。
+生产部署脚本不随公开仓库发布。线下维护者应从本地安全位置获取部署脚本，并通过 `PAOPAO_PROD_SSH_KEY`、`PAOPAO_PROD_HOST` 等环境变量提供部署参数；公开仓库只保留通用配置说明。不得把真实域名、服务器路径、私钥或环境文件提交到仓库。
 
 ## 数据与安全
 
