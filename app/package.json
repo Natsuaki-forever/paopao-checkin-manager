@@ -1,6 +1,6 @@
 {
   "name": "paopao-checkin-manager",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "private": true,
   "type": "module",
   "scripts": {
@@ -26,6 +26,7 @@
     "fastify": "^5.9.0",
     "lucide-react": "^1.22.0",
     "node-cron": "^4.5.0",
+    "playwright": "1.61.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "undici": "^7.28.0",
