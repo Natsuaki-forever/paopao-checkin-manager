@@ -29,7 +29,7 @@
 .auth-time-3 { bottom: -1px; left: calc(50% + 12px); }
 .auth-time-4 { top: calc(50% - 12px); left: -8px; }
 .auth-theme-toggle { position: fixed; top: 22px; right: 24px; z-index: 5; }
-.auth-card { width: min(100%, 580px); position: relative; justify-self: center; padding: 46px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface); box-shadow: var(--shadow); }
+.auth-card { width: min(100%, 628px); position: relative; justify-self: center; padding: 46px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface); box-shadow: var(--shadow); }
 .auth-page > .auth-card:first-of-type { grid-column: 2; }
 .auth-brand { max-width: calc(100% - 250px); position: relative; z-index: 2; color: var(--text); font-size: 24px; }
 .auth-brand svg { stroke-width: 1.8; }
@@ -46,7 +46,8 @@
 .admin-entry { min-height: 34px; margin: 12px auto 0; padding: 0 8px; border: 0; background: transparent; color: var(--muted); font-size: 13px; }
 .admin-entry:hover { color: var(--accent); }
 .auth-page { position: relative; }
-.auth-visual, .auth-card { position: relative; top: calc(-1 * clamp(0px, 9vh, 96px)); }
+.auth-visual { position: relative; top: calc(-1 * clamp(0px, 9vh, 96px)); }
+.auth-card { top: calc(-1 * clamp(0px, 6.7vh, 72px)); }
 .auth-attribution { position: fixed; z-index: 4; right: 20px; bottom: 20px; left: 20px; display: grid; gap: 4px; justify-items: center; margin: 0 auto; color: var(--muted); font-size: 11px; line-height: 1.45; text-align: center; pointer-events: none; }
 .auth-attribution a { pointer-events: auto; }
 .auth-attribution a { color: var(--accent); text-decoration: none; }
