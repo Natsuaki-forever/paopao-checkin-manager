@@ -239,7 +239,7 @@
 .invite-create-row { display: grid; grid-template-columns: minmax(0, 1fr) 180px 190px; align-items: end; gap: 14px; margin: 0 20px 18px; }
 .invite-create-row label { display: grid; gap: 7px; color: var(--text); font-size: 13px; }
 .invite-create-row .button { min-height: 42px; }
-.invite-list { max-height: 330px; overflow-y: auto; padding: 0 4px 2px 0; }
+.invite-list { max-height: 330px; overflow-y: auto; margin-bottom: 20px; padding: 0 4px 2px 0; }
 .invite-list-item { min-height: 76px; display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px; margin: 0 0 10px; padding: 14px 13px !important; }
 .invite-list-item:last-child { margin-bottom: 0; }
 .invite-list-item > span:first-child { min-width: 0; display: grid; gap: 5px; overflow: hidden; }
