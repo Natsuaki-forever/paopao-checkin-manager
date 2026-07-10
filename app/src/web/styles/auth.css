@@ -46,6 +46,7 @@
 .admin-entry { min-height: 34px; margin: 12px auto 0; padding: 0 8px; border: 0; background: transparent; color: var(--muted); font-size: 13px; }
 .admin-entry:hover { color: var(--accent); }
 .auth-page { position: relative; }
+.auth-visual, .auth-card { position: relative; top: -clamp(0px, 9vh, 96px); }
 .auth-attribution { position: fixed; z-index: 4; right: 20px; bottom: 20px; left: 20px; display: grid; gap: 4px; justify-items: center; margin: 0 auto; color: var(--muted); font-size: 11px; line-height: 1.45; text-align: center; pointer-events: none; }
 .auth-attribution a { pointer-events: auto; }
 .auth-attribution a { color: var(--accent); text-decoration: none; }
@@ -54,7 +55,7 @@
 @media (max-width: 900px) {
   .auth-page { grid-template-columns: 1fr; padding: 80px 20px 28px; background-image: none; }
   .auth-visual { display: none; }
-  .auth-card { justify-self: center; padding: 32px 26px; }
+  .auth-card { top: 0; justify-self: center; padding: 32px 26px; }
   .auth-page > .auth-card:first-of-type { grid-column: auto; }
   .auth-brand { max-width: calc(100% - 128px); font-size: 20px; }
   .auth-mascot { width: 132px; height: 132px; top: 20px; right: 16px; }
