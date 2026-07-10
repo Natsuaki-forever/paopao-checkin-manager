@@ -566,7 +566,6 @@ export class AppDatabase {
             CREATE TABLE registration_invites (
               id TEXT PRIMARY KEY,
               code_hash TEXT NOT NULL UNIQUE,
-              code_plaintext TEXT,
               label TEXT NOT NULL DEFAULT '',
               max_uses INTEGER NOT NULL DEFAULT 1,
               used_count INTEGER NOT NULL DEFAULT 0,
