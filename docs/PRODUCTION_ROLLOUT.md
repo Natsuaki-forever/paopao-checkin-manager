@@ -6,9 +6,13 @@
 
 - 正式域名：`https://checkin.boyneverdie.xyz/`
 - 应用名称：炮炮签到站（Paopao Checkin Manager）
-- 应用版本：`0.7.5`
+- 应用版本：`0.7.6`
 - 正式容器：`paopao-checkin-manager`
 - 数据库迁移版本：v12
+- 2026-07-10 已上线 0.7.6 构建可靠性修复：管理端显式声明 `playwright@1.61.0`，类型检查和 Docker 构建不再依赖基础镜像中的隐含模块。无数据迁移、接口、权限、执行链路或环境变量变化。
+- 0.7.6 正式镜像通过 22 个测试文件共 62 项测试、执行内核与管理端生产构建；正式数据库保持 v12。
+- 正式镜像为 `paopao-checkin-manager:0.7.6`，容器健康、重启次数为 0；公网 HTTPS、健康接口、邀请注册状态和未登录鉴权已验证，未触发真实签到。
+- Queue、Session 与邀请注册保持启用，HTTP Flow 保持关闭；容器重建前已通过 `scripts/preserve-production-flags.sh` 保留全部 4 个正式开关。
 - 2026-07-09 已上线 0.7.5 权限复选框宽屏源规则修复与执行模板页结构重设计：新用户默认能力、用户管理弹窗同类权限网格左对齐；执行模板分类、层级和列表语言与日常工作页统一。无数据迁移、接口、权限、执行链路或环境变量变化。
 - 0.7.5 正式镜像通过 22 个测试文件共 62 项测试、执行内核与管理端生产构建；正式数据库保持 v12。
 - 正式镜像为 `paopao-checkin-manager:0.7.5`，容器健康、重启次数为 0；公网 HTTPS、健康接口、邀请注册状态和未登录鉴权已验证，未触发真实签到。
@@ -69,6 +73,15 @@
 - 正式环境已显式开启用户注册；容器健康、HTTPS、鉴权状态、v11 迁移、任务/会话保留和无活动 Job 均已验证，未触发真实签到
 
 ## 发布与回滚点
+
+- 0.7.6 正式目录：`/root/paopao-checkin-manager`
+- 0.7.6 正式镜像：`paopao-checkin-manager:0.7.6`
+- 0.7.6 发布包：`/root/paopao-checkin-manager-0.7.6-20260710-100335.tar.gz`
+- 0.7.6 发布包 SHA-256：`a14a602b85fcc442c62c05d67cb9fd78ccfc788eb033f2b59b1f9f4f1a827b24`
+- 0.7.6 发布前备份：`/root/paopao-backups/20260710-100337-pre-0.7.6`
+- 0.7.6 功能开关合并备份：`/root/paopao-checkin-manager/app/.env.before-recreate-20260710-100340`
+- 0.7.6 回滚镜像：`paopao-checkin-manager:rollback-before-0.7.6-20260710-100337`
+- 0.7.6 没有数据迁移；回滚时仍应同时恢复发布前数据与环境备份。
 
 - 0.7.5 正式目录：`/root/paopao-checkin-manager`
 - 0.7.5 正式镜像：`paopao-checkin-manager:0.7.5`
