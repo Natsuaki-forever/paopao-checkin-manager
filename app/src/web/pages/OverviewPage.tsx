@@ -59,7 +59,7 @@ export function OverviewPage({
     </section>
 
     <section className="attention-section">
-      <div className="section-title-row"><h2>需要处理</h2><span>{dashboard.attention.length}</span></div>
+      <div className="section-title-row"><h2>需要处理</h2><span className={dashboard.attention.length ? "attention-count attention-count-active" : "attention-count"}>{dashboard.attention.length}</span></div>
       {dashboard.attention.length ? <div className="attention-list">{dashboard.attention.map((item) =>
         <AttentionRow key={item.taskId} item={item} onTaskAction={onTaskAction} />)}</div>
         : <div className="healthy-empty"><button className="secret-trigger" type="button" aria-label="健康状态" onClick={healthPig.trigger}><ShieldCheck size={21} /></button><div><strong>运行状态正常</strong><p>当前没有需要人工处理的事项。</p></div>{healthPig.visible ? <PigTankEasterEgg variant="drive" /> : null}</div>}

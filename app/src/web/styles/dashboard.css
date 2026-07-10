@@ -16,7 +16,8 @@
 .attention-section, .data-section { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface); }
 .section-title-row { min-height: 54px; display: flex; align-items: center; gap: 10px; padding: 0 18px; border-bottom: 1px solid var(--line); }
 .section-title-row h2 { margin: 0; font-size: 17px; }
-.section-title-row > span { min-width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--danger) 16%, var(--surface)); color: var(--danger); font-family: var(--font-numeric); font-size: 12px; }
+.attention-count { min-width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--surface-2); color: var(--muted); font-family: var(--font-numeric); font-size: 12px; }
+.attention-count-active { background: color-mix(in srgb, var(--danger) 16%, var(--surface)); color: var(--danger); }
 .section-title-row .text-link { margin-left: auto; }
 .attention-list { display: grid; }
 .attention-row { min-height: 72px; display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 12px 18px; border-left: 3px solid var(--warning); }
