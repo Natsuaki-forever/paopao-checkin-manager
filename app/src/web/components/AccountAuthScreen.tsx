@@ -126,7 +126,6 @@ export function AccountAuthScreen({
     <div className="auth-page">
       <ThemeToggle className="auth-theme-toggle" />
       <AuthVisual />
-      <div className="auth-panel">
       <section className="auth-card">
         <div className={`auth-mascot auth-mascot-${mascot.pose}`} key={mascot.pose} aria-label={mascot.label} role="img">
           <img src={mascot.src} alt="" />
@@ -230,7 +229,6 @@ export function AccountAuthScreen({
         <a href="https://github.com/Natsuaki-forever/paopao-checkin-manager/issues" target="_blank" rel="noreferrer">NatsuAki · GitHub Issues</a>
         <span>© 2026 NatsuAki Works. All rights reserved.</span>
       </footer>
-      </div>
     </div>
   );
 }
