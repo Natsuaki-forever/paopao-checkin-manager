@@ -173,16 +173,16 @@ export function SettingsPage({ notify }: { notify: (message: string) => void }) 
         </div>
       </section> : null}
 
-      {activeTab === "registration" && registration ? <section className="panel settings-section">
+      {activeTab === "registration" && registration ? <section className="panel settings-section registration-section">
         <div className="settings-section-title"><UserPlus size={22} /><div><h2>注册与默认权限</h2><p>正式环境建议使用邀请码注册；部署环境总开关关闭时不能开放注册。</p></div></div>
         {!registration.environmentEnabled ? <div className="form-error">部署环境已关闭注册，只能保持关闭状态。</div> : null}
         <label className="number-field"><span>注册方式</span><select value={registration.configuredMode} onChange={(event) => setRegistration({ ...registration, configuredMode: event.target.value as RegistrationConfig["configuredMode"] })}><option value="closed">关闭注册</option><option value="invite">邀请码注册</option><option value="public">公开注册</option></select></label>
-        <h3>新用户默认能力</h3>
+        <h3 className="registration-subheading">新用户默认能力</h3>
         <div className="permission-grid">{(Object.keys(registration.defaultCapabilities) as Array<keyof UserCapabilities>).map((key) => <label className="check-row" key={key}><input type="checkbox" checked={registration.defaultCapabilities[key]} onChange={(event) => setRegistration({ ...registration, defaultCapabilities: { ...registration.defaultCapabilities, [key]: event.target.checked } })} /><span>{registrationCapabilityLabel(key)}</span></label>)}</div>
         <div className="settings-grid"><NumberField label="任务上限" value={registration.defaultQuotas.maxTasks} min={0} max={1000} onChange={(value) => setRegistration({ ...registration, defaultQuotas: { ...registration.defaultQuotas, maxTasks: value } })} suffix="项" /><NumberField label="启用计划上限" value={registration.defaultQuotas.maxEnabledTasks} min={0} max={1000} onChange={(value) => setRegistration({ ...registration, defaultQuotas: { ...registration.defaultQuotas, maxEnabledTasks: value } })} suffix="项" /><NumberField label="每日操作上限" value={registration.defaultQuotas.maxDailyActions} min={0} max={10000} onChange={(value) => setRegistration({ ...registration, defaultQuotas: { ...registration.defaultQuotas, maxDailyActions: value } })} suffix="次" /></div>
         <button className="button button-primary" onClick={() => void saveRegistration()}>保存注册策略</button>
         <div className="settings-divider" />
-        <h3>邀请码</h3>
+        <h3 className="invite-subheading">邀请码</h3>
         <div className="invite-create-row"><label><span>备注</span><input value={inviteLabel} onChange={(event) => setInviteLabel(event.target.value)} placeholder="例如：家庭成员" /></label><label><span>复用次数</span><select value={inviteMaxUses} onChange={(event) => setInviteMaxUses(Number(event.target.value))}><option value={1}>1 次</option><option value={2}>2 次</option><option value={5}>5 次</option><option value={10}>10 次</option><option value={20}>20 次</option><option value={50}>50 次</option></select></label><button className="button button-outline" onClick={() => void createInvite()}>生成邀请码</button></div>
         <div className="compact-list invite-list">{invites.map((invite) => <div className="invite-list-item" key={invite.id}><span><strong>{invite.label || "未命名邀请码"}</strong><small>{invite.usedCount}/{invite.maxUses} 次 · {invite.disabledAt ? "已停用" : "可用"}{revealedCodes[invite.id] ? ` · ${revealedCodes[invite.id]}` : " · 邀请码仅在生成时显示"}</small></span><span className="invite-actions">{revealedCodes[invite.id] ? <button type="button" className="icon-button" aria-label="复制邀请码" title="复制邀请码" onClick={() => void copyInvite(revealedCodes[invite.id]!)}><Copy size={17} /></button> : null}<button type="button" className="icon-button icon-button-danger" aria-label="删除邀请码" title="删除邀请码" onClick={() => void deleteInvite(invite.id)}><Trash2 size={17} /></button></span></div>)}</div>
       </section> : null}

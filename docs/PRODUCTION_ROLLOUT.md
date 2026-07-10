@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-- 正式域名：`https://checkin.boyneverdie.xyz/`
+- 正式域名：已脱敏（公开仓库使用占位地址）
 - 应用名称：炮炮签到站（Paopao Checkin Manager）
 - 应用版本：`0.7.8-alpha`
 - 正式容器：`paopao-checkin-manager`

@@ -20,7 +20,7 @@
 - 正式项目名：`paopao-checkin-manager`
 - 管理端源码：`app/`
 - 通用浏览器执行器：`src/checkin.ts`
-- 正式访问地址：`https://checkin.boyneverdie.xyz/`
+- 正式访问地址：已脱敏（公开仓库不记录真实域名）
 - 服务器项目目录：`/root/paopao-checkin-manager`
 - 正式管理容器：`paopao-checkin-manager`
 - 容器内部监听：`8787`，宿主机映射为 `127.0.0.1:8787`
