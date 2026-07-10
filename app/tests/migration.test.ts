@@ -130,7 +130,7 @@ describe("database migration v1 to current", () => {
       migrated.db
         .prepare("SELECT MAX(version) AS version FROM schema_migrations")
         .get(),
-    ).toMatchObject({ version: 12 });
+    ).toMatchObject({ version: 13 });
     expect(migrated.getSettings()).toMatchObject({ screenshotMaxMb: 500, registrationMode: "invite", auditRetentionDays: 180 });
     expect(migrated.listTasks()[0]).toMatchObject({
       id: task.id,
