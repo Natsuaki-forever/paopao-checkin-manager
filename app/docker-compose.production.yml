@@ -3,7 +3,7 @@ name: paopao-checkin-manager
 services:
   manager:
     container_name: paopao-checkin-manager
-    image: paopao-checkin-manager:0.7.6
+    image: paopao-checkin-manager:0.7.8-alpha
     build:
       context: ..
       dockerfile: app/Dockerfile

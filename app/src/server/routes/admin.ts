@@ -363,6 +363,16 @@ export function registerAdminRoutes(
     return { success: true };
   });
 
+  app.delete("/api/admin/invites/:id", async (request) => {
+    const actor = principal(request);
+    requireOwner(actor);
+    const { id } = z.object({ id: z.uuid() }).parse(request.params);
+    const changed = database.db.prepare(`DELETE FROM registration_invites WHERE id = ?`).run(id).changes;
+    if (!changed) throw notFound("邀请码不存在");
+    writeAudit(database, actor, "invite.delete", "invite", { targetId: id });
+    return { success: true };
+  });
+
   app.get("/api/admin/tasks", async (request) => {
     principal(request);
     const { userId } = z.object({ userId: z.uuid().optional() }).parse(request.query);

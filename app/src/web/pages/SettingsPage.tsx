@@ -9,14 +9,19 @@ import {
   TimerReset,
   HardDrive,
   UserPlus,
-  Ban,
+  Copy,
+  Trash2,
+  ExternalLink,
+  Info,
+  ShieldCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ServiceStatus, StorageUsage, SystemSettings, UserCapabilities, UserQuotas } from "../../shared/types";
-import { api, postJson, putJson } from "../api";
+import { api, deleteJson, postJson, putJson } from "../api";
 import { formatDateTime } from "../utils";
 import { PigTankEasterEgg } from "../components/PigTankEasterEgg";
 import { useEasterEggSequence } from "../hooks/useEasterEggSequence";
+import { APP_VERSION } from "../../shared/version";
 
 export function SettingsPage({ notify }: { notify: (message: string) => void }) {
   const [settings, setSettings] = useState<SystemSettings>();
@@ -26,9 +31,10 @@ export function SettingsPage({ notify }: { notify: (message: string) => void }) 
   const [testingProxy, setTestingProxy] = useState(false);
   const [registration, setRegistration] = useState<RegistrationConfig>();
   const [invites, setInvites] = useState<InviteSummary[]>([]);
-  const [inviteCode, setInviteCode] = useState("");
+  const [revealedCodes, setRevealedCodes] = useState<Record<string, string>>({});
   const [inviteLabel, setInviteLabel] = useState("");
-  const [activeTab, setActiveTab] = useState<"execution" | "storage" | "proxy" | "registration" | "status">("execution");
+  const [inviteMaxUses, setInviteMaxUses] = useState(1);
+  const [activeTab, setActiveTab] = useState<"execution" | "storage" | "proxy" | "registration" | "status" | "about">("execution");
   const versionPig = useEasterEggSequence({ clicks: 5, windowMs: 3_000 });
 
   const load = async () => {
@@ -96,12 +102,28 @@ export function SettingsPage({ notify }: { notify: (message: string) => void }) 
     try {
       const result = await postJson<InviteSummary & { code: string }>("/api/admin/invites", {
         label: inviteLabel,
-        maxUses: 1,
+        maxUses: inviteMaxUses,
       });
-      setInviteCode(result.code);
+      setRevealedCodes((current) => ({ ...current, [result.id]: result.code }));
       setInviteLabel("");
       await load();
+      await navigator.clipboard.writeText(result.code).catch(() => undefined);
+      notify("邀请码已生成并复制");
     } catch (error) { notify(error instanceof Error ? error.message : "邀请码创建失败"); }
+  };
+
+  const copyInvite = async (code: string) => {
+    await navigator.clipboard.writeText(code);
+    notify("邀请码已复制");
+  };
+
+  const deleteInvite = async (id: string) => {
+    try {
+      await deleteJson(`/api/admin/invites/${id}`);
+      setRevealedCodes((current) => { const next = { ...current }; delete next[id]; return next; });
+      await load();
+      notify("邀请码已删除");
+    } catch (error) { notify(error instanceof Error ? error.message : "删除邀请码失败"); }
   };
 
   if (!settings || !status || !storage) return <div className="empty-state">正在加载系统设置…</div>;
@@ -115,6 +137,7 @@ export function SettingsPage({ notify }: { notify: (message: string) => void }) 
           ["proxy", "代理"],
           ["registration", "注册与默认权限"],
           ["status", "服务状态"],
+          ["about", "关于本项目"],
         ] as const).map(([id, label]) => <button key={id} type="button" className={activeTab === id ? "active" : ""} onClick={() => setActiveTab(id)}>{label}</button>)}
       </nav>
 
@@ -160,15 +183,23 @@ export function SettingsPage({ notify }: { notify: (message: string) => void }) 
         <button className="button button-primary" onClick={() => void saveRegistration()}>保存注册策略</button>
         <div className="settings-divider" />
         <h3>邀请码</h3>
-        <div className="proxy-row"><label><span>备注</span><input value={inviteLabel} onChange={(event) => setInviteLabel(event.target.value)} placeholder="例如：家庭成员" /></label><button className="button button-outline" onClick={() => void createInvite()}>生成一次性邀请码</button></div>
-        {inviteCode ? <div className="form-note"><strong>邀请码仅显示一次</strong><code>{inviteCode}</code></div> : null}
-        <div className="compact-list">{invites.map((invite) => <div key={invite.id}><span><strong>{invite.label || "未命名邀请码"}</strong><small>{invite.usedCount}/{invite.maxUses} 次 · {invite.disabledAt ? "已停用" : "可用"}</small></span>{!invite.disabledAt ? <button className="icon-button" aria-label="停用邀请码" onClick={async () => { await postJson(`/api/admin/invites/${invite.id}/disable`); await load(); }}><Ban size={17} /></button> : null}</div>)}</div>
+        <div className="invite-create-row"><label><span>备注</span><input value={inviteLabel} onChange={(event) => setInviteLabel(event.target.value)} placeholder="例如：家庭成员" /></label><label><span>复用次数</span><select value={inviteMaxUses} onChange={(event) => setInviteMaxUses(Number(event.target.value))}><option value={1}>1 次</option><option value={2}>2 次</option><option value={5}>5 次</option><option value={10}>10 次</option><option value={20}>20 次</option><option value={50}>50 次</option></select></label><button className="button button-outline" onClick={() => void createInvite()}>生成邀请码</button></div>
+        <div className="compact-list invite-list">{invites.map((invite) => <div className="invite-list-item" key={invite.id}><span><strong>{invite.label || "未命名邀请码"}</strong><small>{invite.usedCount}/{invite.maxUses} 次 · {invite.disabledAt ? "已停用" : "可用"}{revealedCodes[invite.id] ? ` · ${revealedCodes[invite.id]}` : " · 邀请码仅在生成时显示"}</small></span><span className="invite-actions">{revealedCodes[invite.id] ? <button type="button" className="icon-button" aria-label="复制邀请码" title="复制邀请码" onClick={() => void copyInvite(revealedCodes[invite.id]!)}><Copy size={17} /></button> : null}<button type="button" className="icon-button icon-button-danger" aria-label="删除邀请码" title="删除邀请码" onClick={() => void deleteInvite(invite.id)}><Trash2 size={17} /></button></span></div>)}</div>
       </section> : null}
 
       {activeTab === "status" ? <section className="panel settings-section">
         <div className="settings-section-title"><ServerCog size={22} /><div><h2>服务状态</h2><p>只读状态，用于确认当前运行环境。</p></div></div>
         <div className="status-grid"><StatusItem icon={<CheckCircle2 />} label="运行模式" value={status.mode === "production" ? "正式运行" : "本地模拟"} tone="blue" /><StatusItem icon={<Database />} label="数据库" value="已连接" /><StatusItem icon={<TimerReset />} label="队列" value={status.features.queue ? "已开启" : "已关闭"} /><StatusItem icon={<KeyRound />} label="会话复用" value={status.features.session ? "已开启" : "已关闭"} /><StatusItem icon={<Network />} label="HTTP Flow" value={status.features.httpFlow ? "已开启" : "已关闭"} tone="muted" /><StatusItem icon={status.proxy === "configured_failed" ? <CircleAlert /> : <Network />} label="代理" value={proxyStatusLabel(status.proxy)} tone={status.proxy === "configured_tested" ? "green" : status.proxy === "configured_failed" ? "danger" : "muted"} /><StatusItem icon={<ServerCog />} label="版本" value={status.version} tone="muted" onActivate={versionPig.trigger} /><StatusItem icon={<CheckCircle2 />} label="启动时间" value={formatDateTime(status.startedAt)} tone="muted" /></div>
         {versionPig.visible ? <PigTankEasterEgg variant="wiggle" /> : null}
+      </section> : null}
+
+      {activeTab === "about" ? <section className="panel settings-section about-section">
+        <div className="settings-section-title"><Info size={22} /><div><h2>关于本项目</h2><p>了解炮炮签到站、项目归属与安全使用边界。</p></div></div>
+        <div className="about-hero"><div className="about-mark"><img src="/favicon-transparent.png" alt="炮炮签到站" /></div><div><strong>炮炮签到站</strong><span>Paopao Checkin Manager</span><p>面向个人及授权用户的网页任务管理工具，用于管理网站签到任务、执行计划、账号会话与运行记录。</p></div></div>
+        <div className="about-grid"><div className="about-fact"><small>当前版本</small><strong>{APP_VERSION}</strong></div><div className="about-fact"><small>运行模式</small><strong>{status.mode === "production" ? "Production" : "Simulation"}</strong></div><div className="about-fact"><small>数据存储</small><strong>SQLite</strong></div><div className="about-fact"><small>执行引擎</small><strong>Playwright</strong></div></div>
+        <div className="about-notice"><ShieldCheck size={19} /><div><strong>安全使用声明</strong><p>本系统仅用于用户本人或已获得明确授权的网站与账户。验证码仅支持人工处理，系统不会自动破解验证码、绕过访问控制或规避目标网站的安全机制。使用本系统时，请遵守目标网站的服务条款及相关法律法规。</p></div></div>
+        <div className="about-links"><div className="maintainer"><img src="https://github.com/Natsuaki-forever.png?size=80" alt="NatsuAki 头像" /><span><small>项目维护者</small><strong>NatsuAki</strong></span></div><a className="button button-outline" href="https://github.com/Natsuaki-forever/paopao-checkin-manager" target="_blank" rel="noreferrer"><ExternalLink size={17} />项目主页</a><a className="button button-outline" href="https://github.com/Natsuaki-forever/paopao-checkin-manager/issues" target="_blank" rel="noreferrer"><ExternalLink size={17} />问题反馈</a></div>
+        <div className="about-copyright">© 2026 NatsuAki Works. All rights reserved.</div>
       </section> : null}
     </div>
   );

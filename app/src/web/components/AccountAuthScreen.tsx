@@ -126,6 +126,7 @@ export function AccountAuthScreen({
     <div className="auth-page">
       <ThemeToggle className="auth-theme-toggle" />
       <AuthVisual />
+      <div className="auth-panel">
       <section className="auth-card">
         <div className={`auth-mascot auth-mascot-${mascot.pose}`} key={mascot.pose} aria-label={mascot.label} role="img">
           <img src={mascot.src} alt="" />
@@ -223,12 +224,13 @@ export function AccountAuthScreen({
             <UserRound size={17} />{copy.backToUser}
           </button>
         )}
-        <div className="auth-runtime-note">
-          {runtimeMode === "production"
-            ? "\u5f53\u524d\u4e3a\u6b63\u5f0f\u6a21\u5f0f\uff0c\u4efb\u52a1\u6267\u884c\u4f1a\u8bbf\u95ee\u5df2\u914d\u7f6e\u7684\u7f51\u7ad9\u3002"
-            : "\u5f53\u524d\u4e3a\u672c\u5730\u6a21\u62df\u6a21\u5f0f\uff0c\u4e0d\u4f1a\u8bbf\u95ee\u5916\u90e8\u7f51\u7ad9\u6216\u53d1\u9001\u901a\u77e5\u3002"}
-        </div>
       </section>
+      <footer className="auth-attribution">
+        <span>炮炮签到站 · Paopao Checkin Manager</span>
+        <a href="https://github.com/Natsuaki-forever/paopao-checkin-manager/issues" target="_blank" rel="noreferrer">NatsuAki · GitHub Issues</a>
+        <span>© 2026 NatsuAki Works. All rights reserved.</span>
+      </footer>
+      </div>
     </div>
   );
 }
