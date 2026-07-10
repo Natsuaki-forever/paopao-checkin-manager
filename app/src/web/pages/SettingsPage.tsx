@@ -31,7 +31,6 @@ export function SettingsPage({ notify }: { notify: (message: string) => void }) 
   const [testingProxy, setTestingProxy] = useState(false);
   const [registration, setRegistration] = useState<RegistrationConfig>();
   const [invites, setInvites] = useState<InviteSummary[]>([]);
-  const [revealedCodes, setRevealedCodes] = useState<Record<string, string>>({});
   const [inviteLabel, setInviteLabel] = useState("");
   const [inviteMaxUses, setInviteMaxUses] = useState(1);
   const [activeTab, setActiveTab] = useState<"execution" | "storage" | "proxy" | "registration" | "status" | "about">("execution");
@@ -104,7 +103,6 @@ export function SettingsPage({ notify }: { notify: (message: string) => void }) 
         label: inviteLabel,
         maxUses: inviteMaxUses,
       });
-      setRevealedCodes((current) => ({ ...current, [result.id]: result.code }));
       setInviteLabel("");
       await load();
       await navigator.clipboard.writeText(result.code).catch(() => undefined);
@@ -120,7 +118,6 @@ export function SettingsPage({ notify }: { notify: (message: string) => void }) 
   const deleteInvite = async (id: string) => {
     try {
       await deleteJson(`/api/admin/invites/${id}`);
-      setRevealedCodes((current) => { const next = { ...current }; delete next[id]; return next; });
       await load();
       notify("邀请码已删除");
     } catch (error) { notify(error instanceof Error ? error.message : "删除邀请码失败"); }
@@ -184,7 +181,7 @@ export function SettingsPage({ notify }: { notify: (message: string) => void }) 
         <div className="settings-divider" />
         <h3 className="invite-subheading">邀请码</h3>
         <div className="invite-create-row"><label><span>备注</span><input value={inviteLabel} onChange={(event) => setInviteLabel(event.target.value)} placeholder="例如：家庭成员" /></label><label><span>复用次数</span><select value={inviteMaxUses} onChange={(event) => setInviteMaxUses(Number(event.target.value))}><option value={1}>1 次</option><option value={2}>2 次</option><option value={5}>5 次</option><option value={10}>10 次</option><option value={20}>20 次</option><option value={50}>50 次</option></select></label><button className="button button-outline" onClick={() => void createInvite()}>生成邀请码</button></div>
-        <div className="compact-list invite-list">{invites.map((invite) => <div className="invite-list-item" key={invite.id}><span><strong>{invite.label || "未命名邀请码"}</strong><small>{invite.usedCount}/{invite.maxUses} 次 · {invite.disabledAt ? "已停用" : "可用"}{revealedCodes[invite.id] ? ` · ${revealedCodes[invite.id]}` : " · 邀请码仅在生成时显示"}</small></span><span className="invite-actions">{revealedCodes[invite.id] ? <button type="button" className="icon-button" aria-label="复制邀请码" title="复制邀请码" onClick={() => void copyInvite(revealedCodes[invite.id]!)}><Copy size={17} /></button> : null}<button type="button" className="icon-button icon-button-danger" aria-label="删除邀请码" title="删除邀请码" onClick={() => void deleteInvite(invite.id)}><Trash2 size={17} /></button></span></div>)}</div>
+        <div className="compact-list invite-list">{invites.map((invite) => <div className="invite-list-item" key={invite.id}><span><strong>{invite.label || "未命名邀请码"}</strong><small>{invite.usedCount}/{invite.maxUses} 次 · {invite.disabledAt ? "已停用" : "可用"} · {invite.code || "旧邀请码，请重新生成"}</small></span><span className="invite-actions"><button type="button" className="icon-button" aria-label="复制邀请码" title="复制邀请码" disabled={!invite.code} onClick={() => invite.code ? void copyInvite(invite.code) : undefined}><Copy size={17} /></button><button type="button" className="icon-button icon-button-danger" aria-label="删除邀请码" title="删除邀请码" onClick={() => void deleteInvite(invite.id)}><Trash2 size={17} /></button></span></div>)}</div>
       </section> : null}
 
       {activeTab === "status" ? <section className="panel settings-section">
@@ -215,6 +212,7 @@ interface RegistrationConfig {
 
 interface InviteSummary {
   id: string;
+  code?: string;
   label: string;
   maxUses: number;
   usedCount: number;

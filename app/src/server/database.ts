@@ -566,6 +566,7 @@ export class AppDatabase {
             CREATE TABLE registration_invites (
               id TEXT PRIMARY KEY,
               code_hash TEXT NOT NULL UNIQUE,
+              code_plaintext TEXT,
               label TEXT NOT NULL DEFAULT '',
               max_uses INTEGER NOT NULL DEFAULT 1,
               used_count INTEGER NOT NULL DEFAULT 0,
@@ -632,6 +633,13 @@ export class AppDatabase {
       } finally {
         this.db.pragma("foreign_keys = ON");
       }
+    }
+
+    if (version.version < 13) {
+      this.db.transaction(() => {
+        this.db.exec("ALTER TABLE registration_invites ADD COLUMN code_plaintext TEXT;");
+        this.db.prepare("INSERT INTO schema_migrations(version, applied_at) VALUES(13, ?)").run(now());
+      })();
     }
   }
 

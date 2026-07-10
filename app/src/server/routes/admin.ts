@@ -318,10 +318,11 @@ export function registerAdminRoutes(
   app.get("/api/admin/invites", async (request) => {
     const actor = principal(request);
     requireOwner(actor);
-    const rows = database.db.prepare(`SELECT id, label, max_uses, used_count, expires_at,
+    const rows = database.db.prepare(`SELECT id, code_plaintext, label, max_uses, used_count, expires_at,
       disabled_at, created_at FROM registration_invites ORDER BY created_at DESC`).all() as any[];
     return { items: rows.map((row) => ({
       id: row.id,
+      code: row.code_plaintext || undefined,
       label: row.label,
       maxUses: row.max_uses,
       usedCount: row.used_count,
@@ -343,9 +344,9 @@ export function registerAdminRoutes(
     const id = randomUUID();
     const createdAt = new Date().toISOString();
     database.db.prepare(`INSERT INTO registration_invites(
-      id, code_hash, label, max_uses, expires_at, created_by_user_id, created_at
-    ) VALUES(?, ?, ?, ?, ?, ?, ?)`).run(
-      id, hashToken(code), body.label, body.maxUses, body.expiresAt || null,
+      id, code_hash, code_plaintext, label, max_uses, expires_at, created_by_user_id, created_at
+    ) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`).run(
+      id, hashToken(code), code, body.label, body.maxUses, body.expiresAt || null,
       actor.userId || null, createdAt,
     );
     writeAudit(database, actor, "invite.create", "invite", { targetId: id, targetLabel: body.label });

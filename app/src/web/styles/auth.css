@@ -1,7 +1,7 @@
 .auth-page {
   min-height: 100dvh;
   display: grid;
-  grid-template-columns: minmax(380px, 600px) minmax(420px, 580px);
+  grid-template-columns: minmax(520px, 600px) minmax(580px, 628px);
   justify-content: center;
   align-items: center;
   gap: clamp(56px, 6vw, 150px);
@@ -13,7 +13,7 @@
   background-size: 64px 64px;
 }
 .auth-visual { width: min(100%, 600px); display: grid; justify-items: center; justify-self: center; color: var(--text); }
-.auth-orbit { width: min(36vw, 450px); position: relative; aspect-ratio: 1; }
+.auth-orbit { width: min(42vw, 560px); position: relative; aspect-ratio: 1; }
 .auth-orbit::before, .auth-orbit::after { content: ""; position: absolute; z-index: 2; width: 9px; height: 9px; border: 2px solid var(--bg); border-radius: 50%; background: var(--cyan); box-shadow: 0 0 14px color-mix(in srgb, var(--cyan) 70%, transparent); }
 .auth-orbit::before { top: calc(50% - 4px); left: 4%; }
 .auth-orbit::after { right: 4%; bottom: calc(50% - 4px); }
@@ -65,7 +65,7 @@
 
 @media (min-width: 1600px) {
   .auth-page {
-    grid-template-columns: 620px 580px;
-    gap: clamp(72px, 5vw, 170px);
+    grid-template-columns: 620px 628px;
+    gap: clamp(180px, 14vw, 300px);
   }
 }
