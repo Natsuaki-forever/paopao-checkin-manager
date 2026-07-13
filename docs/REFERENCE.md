@@ -1,22 +1,22 @@
 # 炮炮签到站（Paopao Checkin Manager）
 
-当前版本：`0.7.6`。
+当前正式版本：`0.8.0`（数据库迁移 v13）。
 
 炮炮签到站是面向普通用户的网页签到管理器，提供任务、模板、会话、运行记录、通知、注册与角色权限管理。它不是单个站点脚本；通用浏览器执行内核仍在根目录 `src/`，管理端在 `app/`。
 
 ## 文档入口
 
-- 项目目标、实现逻辑和后续方向：[docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)
-- 正式环境状态、发布与回滚记录：[docs/PRODUCTION_ROLLOUT.md](docs/PRODUCTION_ROLLOUT.md)
-- 版本变更记录：[CHANGELOG.md](CHANGELOG.md)
-- 长期 UX 质量参考：[docs/UX_QUALITY_REFERENCE.md](docs/UX_QUALITY_REFERENCE.md)
-- 已完成阶段的历史路线：[docs/HISTORY_IMPLEMENTATION_ROADMAP.md](docs/HISTORY_IMPLEMENTATION_ROADMAP.md)
+- 项目目标、实现逻辑和后续方向：[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)
+- 正式环境状态、发布与回滚记录：[PRODUCTION_ROLLOUT.md](PRODUCTION_ROLLOUT.md)
+- 版本变更记录：[CHANGELOG.md](../CHANGELOG.md)
+- 长期 UX 质量参考：[UX_QUALITY_REFERENCE.md](UX_QUALITY_REFERENCE.md)
 
 `app/README.md` 的有效内容已合并到本文，后续只维护这一个 README，避免说明分叉。
 
 ## 当前能力
 
 - 多用户登录、邀请注册、主管理员、运营管理员和普通用户权限边界。
+- 可复用邀请码、主管理员持续明文管理、复制与删除。
 - 任务、模板、运行记录、会话、通知和系统设置管理。
 - 浏览器表单签到、人工登录会话复用、每任务代理、失败截图和通知策略。
 - 受限 HTTP Flow、HAR 导入和模板审核能力；正式环境当前保持 HTTP Flow 关闭。
@@ -109,4 +109,4 @@ powershell -ExecutionPolicy Bypass -File .\scripts\deploy-production.ps1
 
 版本更新不等于线上部署。只有用户明确要求部署，或当前任务本身包含部署时，才更新正式容器。
 
-正式发布前应记录用户可感知变化、兼容性或迁移影响、验证结果、发布包、备份点和回滚镜像。发布记录维护在 [docs/PRODUCTION_ROLLOUT.md](docs/PRODUCTION_ROLLOUT.md)，版本记录维护在 [CHANGELOG.md](CHANGELOG.md)。
+正式发布前应记录用户可感知变化、兼容性或迁移影响、验证结果、发布包、备份点和回滚镜像。发布记录维护在 [PRODUCTION_ROLLOUT.md](PRODUCTION_ROLLOUT.md)，版本记录维护在 [CHANGELOG.md](../CHANGELOG.md)。
