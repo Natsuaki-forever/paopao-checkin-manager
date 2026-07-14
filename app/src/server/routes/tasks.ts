@@ -7,6 +7,7 @@ import type { CheckinRunEngine } from "../services/run-engine.js";
 import type { RunQueue } from "../services/run-queue.js";
 import type { TaskSessionRepository } from "../repositories/task-session.js";
 import { testProxyTarget } from "./settings.js";
+import { assertSafeProxyUrl } from "../security/network.js";
 import {
   consumeDailyAction,
   enforceTaskQuota,
@@ -124,6 +125,7 @@ export function registerTaskRoutes(
     }
     if (input.enabled) requireCapability(principal, "scheduleTasks");
     if (input.proxyMode === "custom") requireCapability(principal, "useCustomProxy");
+    if (input.proxyMode === "custom" && input.proxyServer) await assertSafeProxyUrl(input.proxyServer);
     if (input.templateUuid) {
       const template = database.db.prepare(`SELECT adapter_id, owner_user_id, is_preset, is_shared
         FROM templates WHERE id = ?`).get(input.templateUuid) as {
@@ -160,6 +162,7 @@ export function registerTaskRoutes(
     }
     if (input.enabled) requireCapability(principal, "scheduleTasks");
     if (input.proxyMode === "custom") requireCapability(principal, "useCustomProxy");
+    if (input.proxyMode === "custom" && input.proxyServer) await assertSafeProxyUrl(input.proxyServer);
     if (input.templateUuid) {
       const template = database.db.prepare(`SELECT adapter_id, owner_user_id, is_preset, is_shared
         FROM templates WHERE id = ?`).get(input.templateUuid) as {

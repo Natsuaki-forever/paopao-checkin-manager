@@ -3,7 +3,7 @@ name: paopao-checkin-manager
 services:
   manager:
     container_name: paopao-checkin-manager
-    image: paopao-checkin-manager:0.10.0
+    image: paopao-checkin-manager:0.11.0
     build:
       context: ..
       dockerfile: app/Dockerfile
@@ -17,7 +17,9 @@ services:
       CHECKIN_MODE: production
       CHECKIN_MANAGER_HOST: 0.0.0.0
       CHECKIN_MANAGER_PORT: "8787"
+      CHECKIN_MANAGER_SECRET_PATH: /run/secrets/paopao-secret.key
       CHECKIN_PUBLIC_ORIGIN: "${CHECKIN_PUBLIC_ORIGIN:-}"
+      CHECKIN_TRUSTED_PROXY_HOSTS: "${CHECKIN_TRUSTED_PROXY_HOSTS:-mihomo}"
       CHECKIN_FEATURE_QUEUE: "${CHECKIN_FEATURE_QUEUE:-false}"
       CHECKIN_FEATURE_SESSION: "${CHECKIN_FEATURE_SESSION:-false}"
       CHECKIN_FEATURE_HTTP_FLOW: "${CHECKIN_FEATURE_HTTP_FLOW:-false}"
@@ -25,6 +27,7 @@ services:
       TZ: Asia/Shanghai
     volumes:
       - ./data:/app/manager/data
+      - ${CHECKIN_SECRET_HOST_PATH:-/root/paopao-checkin-secrets/paopao-secret.key}:/run/secrets/paopao-secret.key:ro
     security_opt:
       - no-new-privileges:true
     cap_drop:

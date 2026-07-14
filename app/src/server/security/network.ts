@@ -25,6 +25,35 @@ const metadataHosts = new Set([
   "metadata.azure.internal",
 ]);
 
+function trustedProxyHosts(): Set<string> {
+  const configured = process.env.CHECKIN_TRUSTED_PROXY_HOSTS || "mihomo";
+  const hosts = configured.split(",").map((host) => host.trim().toLowerCase()).filter(Boolean);
+  if (process.env.NODE_ENV === "test") hosts.push("127.0.0.1", "::1");
+  return new Set(hosts);
+}
+
+async function assertSafeHostname(
+  hostnameInput: string,
+  resolver: HostResolver,
+  allowedInternalHosts = new Set<string>(),
+): Promise<void> {
+  const hostname = hostnameInput.toLowerCase().replace(/^\[|\]$/g, "");
+  if (!hostname || hostname === "localhost" || hostname.endsWith(".localhost")) {
+    throw new Error("Local addresses are not allowed");
+  }
+  if (metadataHosts.has(hostname)) throw new Error("Cloud metadata addresses are not allowed");
+  if (allowedInternalHosts.has(hostname)) return;
+  if (isIP(hostname)) {
+    if (isBlockedAddress(hostname)) throw new Error("Private or reserved addresses are not allowed");
+    return;
+  }
+  const addresses = await resolver(hostname);
+  if (addresses.length === 0) throw new Error("Target hostname has no address");
+  if (addresses.some(({ address }) => isBlockedAddress(address))) {
+    throw new Error("Target hostname resolves to a private or reserved address");
+  }
+}
+
 function blockedIpv4(address: string): boolean {
   const octets = address.split(".").map(Number);
   if (octets.length !== 4 || octets.some((part) => !Number.isInteger(part))) return true;
@@ -69,20 +98,25 @@ export async function assertSafeUrl(
   }
   if (url.protocol !== "https:") throw new Error("Only HTTPS URLs are allowed");
   if (url.username || url.password) throw new Error("URL credentials are not allowed");
-  const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
-  if (!hostname || hostname === "localhost" || hostname.endsWith(".localhost")) {
-    throw new Error("Local addresses are not allowed");
+  await assertSafeHostname(url.hostname, resolver);
+  return url;
+}
+
+/** Validates a proxy endpoint without allowing it to become an internal port-scanning primitive. */
+export async function assertSafeProxyUrl(
+  input: string | URL,
+  resolver: HostResolver = systemResolver,
+): Promise<URL> {
+  let url: URL;
+  try {
+    url = new URL(input);
+  } catch {
+    throw new Error("Invalid proxy URL");
   }
-  if (metadataHosts.has(hostname)) throw new Error("Cloud metadata addresses are not allowed");
-  if (isIP(hostname)) {
-    if (isBlockedAddress(hostname)) throw new Error("Private or reserved addresses are not allowed");
-    return url;
+  if (!['http:', 'https:'].includes(url.protocol)) {
+    throw new Error("Only HTTP and HTTPS proxies are allowed");
   }
-  const addresses = await resolver(hostname);
-  if (addresses.length === 0) throw new Error("Target hostname has no address");
-  if (addresses.some(({ address }) => isBlockedAddress(address))) {
-    throw new Error("Target hostname resolves to a private or reserved address");
-  }
+  await assertSafeHostname(url.hostname, resolver, trustedProxyHosts());
   return url;
 }
 

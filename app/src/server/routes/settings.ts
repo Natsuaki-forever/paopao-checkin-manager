@@ -12,6 +12,7 @@ import {
 import type { CheckinRunEngine } from "../services/run-engine.js";
 import { cleanupRunArtifacts, getStorageUsage } from "../services/run-retention.js";
 import { requireAdmin, requireOwner, writeAudit } from "../services/access.js";
+import { assertSafeProxyUrl, assertSafeUrl } from "../security/network.js";
 
 const settingsSchema = z.object({
   retryCount: z.number().int().min(0).max(10),
@@ -45,6 +46,7 @@ export function registerSettingsRoutes(
     const principal = app.getAuthPrincipal(request)!;
     requireOwner(principal);
     const settings = settingsSchema.parse(request.body) as SystemSettings;
+    if (settings.proxyServer) await assertSafeProxyUrl(settings.proxyServer);
     database.db
       .prepare(`UPDATE system_settings SET
         retry_count = ?, retry_delay_ms = ?, navigation_timeout_ms = ?,
@@ -181,7 +183,8 @@ export async function testProxyTarget(proxyServer: string, targetUrl: string): P
   if (!['http:', 'https:'].includes(url.protocol)) {
     throw Object.assign(new Error("代理检测目前支持 HTTP/HTTPS 代理"), { statusCode: 400 });
   }
-  const target = new URL(targetUrl);
+  await assertSafeProxyUrl(proxyServer);
+  const target = await assertSafeUrl(targetUrl);
   const port = Number(url.port || (url.protocol === "https:" ? 443 : 80));
   await new Promise<void>((resolve, reject) => {
     const socket = net.createConnection({ host: url.hostname, port });

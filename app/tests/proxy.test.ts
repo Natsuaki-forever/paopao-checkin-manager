@@ -73,9 +73,9 @@ describe("per-task proxy", () => {
     const address = server.address() as net.AddressInfo;
     await testProxyTarget(
       `http://127.0.0.1:${address.port}`,
-      "https://target.example.com/checkin",
+      "https://93.184.216.34/checkin",
     );
-    expect(request).toContain("CONNECT target.example.com:443 HTTP/1.1");
+    expect(request).toContain("CONNECT 93.184.216.34:443 HTTP/1.1");
     await new Promise<void>((resolve) => server.close(() => resolve()));
   });
 });

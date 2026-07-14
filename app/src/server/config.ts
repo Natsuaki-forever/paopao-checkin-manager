@@ -54,7 +54,8 @@ export function loadAppConfig(cwd = process.cwd()): AppConfig {
     port,
     dataDir,
     databasePath: currentOrLegacyPath(dataDir, "paopao-checkin.sqlite", "checkin-demo.sqlite"),
-    secretPath: currentOrLegacyPath(dataDir, "paopao-secret.key", "demo-secret.key"),
+    secretPath: process.env.CHECKIN_MANAGER_SECRET_PATH?.trim() ||
+      currentOrLegacyPath(dataDir, "paopao-secret.key", "demo-secret.key"),
     isProduction: process.env.NODE_ENV === "production",
     webRoot: path.resolve(cwd, "dist", "web"),
     mode:

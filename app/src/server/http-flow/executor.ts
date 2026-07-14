@@ -1,6 +1,6 @@
 import { ProxyAgent, fetch as undiciFetch } from "undici";
 import type { HttpFlowExtraction, HttpFlowTemplateV1 } from "../../shared/types.js";
-import { defaultExecutionLimits, fetchWithSafety, type ExecutionLimits, type HostResolver } from "../security/network.js";
+import { assertSafeProxyUrl, defaultExecutionLimits, fetchWithSafety, type ExecutionLimits, type HostResolver } from "../security/network.js";
 import { redactSensitive, redactText, redactUrl } from "../security/redaction.js";
 
 export interface HttpFlowResult {
@@ -27,6 +27,7 @@ export async function executeHttpFlow(
   const cookies = { ...(input.cookies || {}) };
   const summaries: HttpFlowResult["summaries"] = [];
   const started = Date.now();
+  if (input.proxy) await assertSafeProxyUrl(input.proxy, input.resolver);
   const dispatcher = input.proxy ? new ProxyAgent(input.proxy) : undefined;
   try {
     for (const step of template.steps) {

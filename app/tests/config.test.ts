@@ -32,4 +32,9 @@ describe("feature flags", () => {
     vi.stubEnv("CHECKIN_ALLOW_REGISTRATION", "");
     expect(loadAppConfig().registrationEnabled).toBe(true);
   });
+
+  it("uses an externally mounted secret key when configured", () => {
+    vi.stubEnv("CHECKIN_MANAGER_SECRET_PATH", "/run/secrets/paopao-secret.key");
+    expect(loadAppConfig().secretPath).toBe("/run/secrets/paopao-secret.key");
+  });
 });

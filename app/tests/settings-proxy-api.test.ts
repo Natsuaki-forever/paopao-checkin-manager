@@ -30,8 +30,8 @@ describe("proxy status API", () => {
     const database = new AppDatabase(config.databasePath, randomBytes(32), false);
     database.createTask({
       name: "Proxy target", templateId: "browser_form",
-      loginUrl: "https://target.example.com/login",
-      checkinUrl: "https://target.example.com/checkin",
+      loginUrl: "https://93.184.216.34/login",
+      checkinUrl: "https://93.184.216.34/checkin",
       username: "user@example.com", password: "secret",
       scheduleTime: "08:00", timezone: "Asia/Shanghai",
       notifyServerChan: false, notifyWechat: false, enabled: true,

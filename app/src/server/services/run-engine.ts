@@ -5,6 +5,7 @@ import type { AdapterRegistry } from "../adapters/registry.js";
 import type { AppDatabase } from "../database.js";
 import type { TaskSessionRepository } from "../repositories/task-session.js";
 import { redactText, redactUrl, sanitizeSignals } from "../security/redaction.js";
+import { assertSafeProxyUrl } from "../security/network.js";
 import type { NotificationService } from "./notifier.js";
 
 const wait = (milliseconds: number) =>
@@ -147,6 +148,7 @@ export class CheckinRunEngine {
       : taskProxy?.mode === "custom" && taskProxy.server
         ? { server: taskProxy.server, username: taskProxy.username, password: taskProxy.password }
         : settings.proxyServer ? { server: settings.proxyServer } : undefined;
+    if (resolvedProxy?.server) await assertSafeProxyUrl(resolvedProxy.server);
     const storedSession = this.sessions?.getStatus(taskId).status === "valid"
       ? this.sessions.get(taskId)
       : undefined;

@@ -5,11 +5,19 @@
 ## 当前正式状态
 
 - 应用：炮炮签到站（Paopao Checkin Manager）
-- 正式版本：`0.10.0`
-- 正式镜像：`paopao-checkin-manager:0.10.0`
+- 正式版本：`0.11.0`
+- 正式镜像：`paopao-checkin-manager:0.11.0`
 - 数据库迁移：v14
 - 正式注册：注册总开关开启，系统设置采用邀请注册。
 - 功能开关：Queue、Session 开启；HTTP Flow 关闭。
+
+## 0.11.0 正式安全迁移
+
+- 版本与镜像：`0.11.0` / `paopao-checkin-manager:0.11.0`；无数据库迁移。
+- 已将加密密钥迁出 `app/data`，改为 `/root/paopao-checkin-secrets/paopao-secret.key` 的只读挂载；数据卷中旧密钥已移除。
+- 数据备份不再包含密钥；历史 `data.tar.gz` 已逐个重打包并验证不含旧密钥，归档权限收紧为仅 root 可读。回退与恢复时必须保留独立密钥目录。
+- 代理仅允许公网地址或 `CHECKIN_TRUSTED_PROXY_HOSTS` 中的显式内部主机，默认值为 `mihomo`。若现有部署使用其他内部代理，请先把主机名追加到 `app/.env`，以逗号分隔。
+- 发布后必须核验：容器 healthy、密钥不在 `app/data` 与 `data.tar.gz`、`/run/secrets/paopao-secret.key` 只读挂载存在、现有代理检测正常、HTTPS 健康接口可用。
 
 `0.10.0` 已完成生产重建与健康检查。镜像构建通过完整测试、执行内核和管理端生产构建；容器状态为 healthy，重启次数为 0，健康接口返回 production。发布前已备份数据与环境文件并保留所有功能开关；公网 HTTPS、响应头和未登录鉴权复测通过。常规回归不触发真实外部签到。
 

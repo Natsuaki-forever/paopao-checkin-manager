@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { assertSafeUrl, fetchWithSafety, installBrowserRequestGuard, isBlockedAddress } from "../src/server/security/network.js";
+import { assertSafeProxyUrl, assertSafeUrl, fetchWithSafety, installBrowserRequestGuard, isBlockedAddress } from "../src/server/security/network.js";
 import { redactSensitive, redactText, redactUrl } from "../src/server/security/redaction.js";
 
 const publicResolver = async () => [{ address: "93.184.216.34", family: 4 }];
@@ -72,6 +72,19 @@ describe("network safety", () => {
     expect(proceed).not.toHaveBeenCalled();
     await stop();
     expect(context.unroute).toHaveBeenCalled();
+  });
+
+  it("allows only public proxies plus the explicitly trusted internal proxy host", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    await expect(assertSafeProxyUrl("http://127.0.0.1:7890")).rejects.toThrow(/private|reserved/i);
+    await expect(assertSafeProxyUrl("http://private-proxy:7890", async () => [
+      { address: "10.0.0.8", family: 4 },
+    ])).rejects.toThrow(/resolves/i);
+    await expect(assertSafeProxyUrl("http://mihomo:7890", async () => [
+      { address: "10.0.0.8", family: 4 },
+    ])).resolves.toMatchObject({ hostname: "mihomo" });
+    await expect(assertSafeProxyUrl("https://proxy.example.test", publicResolver))
+      .resolves.toMatchObject({ hostname: "proxy.example.test" });
   });
   it("rejects an oversized declared response", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
