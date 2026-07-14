@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
 import type { AppDatabase } from "../database.js";
 import type { BrowserStorageState, TaskSessionRepository } from "../repositories/task-session.js";
-import { assertSafeUrl, installBrowserMainDocumentGuard } from "../security/network.js";
+import { assertSafeUrl, installBrowserRequestGuard } from "../security/network.js";
 import type { CheckinRunEngine } from "./run-engine.js";
 import type { ManualElementSelection } from "../../shared/types.js";
 
@@ -63,7 +63,7 @@ export class ManualLoginService {
         timezoneId: task.timezone,
         storageState: storedState,
       });
-      await installBrowserMainDocumentGuard(context);
+      await installBrowserRequestGuard(context);
       const page = await context.newPage();
       const settings = this.database.getSettings();
       page.setDefaultNavigationTimeout(settings.navigationTimeoutMs);

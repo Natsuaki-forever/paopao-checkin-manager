@@ -67,7 +67,7 @@ export async function assertSafeUrl(
   } catch {
     throw new Error("Invalid URL");
   }
-  if (!['http:', 'https:'].includes(url.protocol)) throw new Error("Only HTTP or HTTPS URLs are allowed");
+  if (url.protocol !== "https:") throw new Error("Only HTTPS URLs are allowed");
   if (url.username || url.password) throw new Error("URL credentials are not allowed");
   const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
   if (!hostname || hostname === "localhost" || hostname.endsWith(".localhost")) {
@@ -163,8 +163,6 @@ async function readLimitedBody(response: Response, maximum: number): Promise<Uin
 }
 
 interface BrowserRequest {
-  isNavigationRequest(): boolean;
-  frame(): { parentFrame(): unknown };
   url(): string;
 }
 interface BrowserRoute {
@@ -177,17 +175,18 @@ interface BrowserContextLike {
   unroute(pattern: string, handler: (route: BrowserRoute) => Promise<void>): Promise<unknown>;
 }
 
-export async function installBrowserMainDocumentGuard(
+export async function installBrowserRequestGuard(
   context: BrowserContextLike,
   resolver: HostResolver = systemResolver,
 ): Promise<() => Promise<void>> {
   const handler = async (route: BrowserRoute): Promise<void> => {
     const request = route.request();
-    if (!request.isNavigationRequest() || request.frame().parentFrame()) {
-      await route.continue();
-      return;
-    }
     try {
+      const protocol = new URL(request.url()).protocol;
+      if (protocol === "about:" || protocol === "data:" || protocol === "blob:") {
+        await route.continue();
+        return;
+      }
       await assertSafeUrl(request.url(), resolver);
       await route.continue();
     } catch {
@@ -197,3 +196,6 @@ export async function installBrowserMainDocumentGuard(
   await context.route("**/*", handler);
   return async () => { await context.unroute("**/*", handler); };
 }
+
+/** @deprecated Use installBrowserRequestGuard to protect every browser request. */
+export const installBrowserMainDocumentGuard = installBrowserRequestGuard;

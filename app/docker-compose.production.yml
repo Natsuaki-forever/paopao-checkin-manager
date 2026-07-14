@@ -3,7 +3,7 @@ name: paopao-checkin-manager
 services:
   manager:
     container_name: paopao-checkin-manager
-    image: paopao-checkin-manager:0.9.1
+    image: paopao-checkin-manager:0.10.0
     build:
       context: ..
       dockerfile: app/Dockerfile
@@ -29,6 +29,11 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777,noexec,nosuid,nodev
+      - /home/pwuser/.cache:mode=0700,noexec,nosuid,nodev
+      - /home/pwuser/.config:mode=0700,noexec,nosuid,nodev
     logging:
       driver: json-file
       options:

@@ -54,6 +54,9 @@ describe("Paopao Checkin Manager API", () => {
       registrationEnabled: true,
       registrationMode: "public",
     });
+    expect(status.headers["x-content-type-options"]).toBe("nosniff");
+    expect(status.headers["content-security-policy"]).toContain("frame-ancestors 'none'");
+    expect(status.headers["cache-control"]).toBe("no-store");
 
     const registrationBeforeSetup = await app.inject({
       method: "POST",

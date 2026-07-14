@@ -32,10 +32,7 @@ const templateConfigSchema = z.object({
   alreadyCheckedTexts: textListSchema,
 }).optional();
 
-const httpUrlSchema = z.url().refine((value) => {
-  const protocol = new URL(value).protocol;
-  return protocol === "http:" || protocol === "https:";
-}, "只支持 HTTP 或 HTTPS 地址");
+const httpsUrlSchema = z.url().refine((value) => new URL(value).protocol === "https:", "只支持 HTTPS 地址");
 
 const taskSchema = z.object({
   templateId: z.literal("browser_form").optional(),
@@ -43,8 +40,8 @@ const taskSchema = z.object({
   templateUuid: z.uuid().optional(),
   templateConfig: templateConfigSchema,
   name: z.string().trim().min(1, "请输入任务名称").max(80),
-  loginUrl: httpUrlSchema,
-  checkinUrl: httpUrlSchema,
+  loginUrl: httpsUrlSchema,
+  checkinUrl: httpsUrlSchema,
   username: z.string().max(320).optional(),
   password: z.string().max(512).optional(),
   scheduleTime: z

@@ -1,6 +1,6 @@
 {
   "name": "paopao-checkin-manager",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "private": true,
   "description": "炮炮签到站（Paopao Checkin Manager）",
   "type": "module",

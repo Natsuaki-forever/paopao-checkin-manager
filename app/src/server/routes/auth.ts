@@ -10,7 +10,7 @@ import {
   verifyPassword,
 } from "../services/auth.js";
 import { hashToken } from "../crypto.js";
-import { writeAudit } from "../services/access.js";
+import { writeAudit, writeAuthenticationFailure } from "../services/access.js";
 import { defaultUserCapabilities } from "../../shared/types.js";
 
 const passwordSchema = z.object({
@@ -78,6 +78,7 @@ export function registerAuthRoutes(
         .prepare("SELECT password_hash FROM admin_credentials WHERE id = 1")
         .get() as { password_hash: string };
       if (!(await verifyPassword(row.password_hash, password))) {
+        writeAuthenticationFailure(database, "admin_password");
         return reply.code(401).send({ message: "主密码错误" });
       }
       issueSession(database, reply, isProduction, { role: "admin", displayName: "\u7ba1\u7406\u5458" });
@@ -176,6 +177,7 @@ export function registerAuthRoutes(
         status: "active" | "suspended";
       } | undefined;
       if (!row || row.status !== "active" || !(await verifyPassword(row.password_hash, input.password))) {
+        writeAuthenticationFailure(database, "user_password");
         return reply.code(401).send({ message: "\u7528\u6237\u540d\u6216\u5bc6\u7801\u9519\u8bef" });
       }
       database.db.prepare("UPDATE users SET last_login_at = ?, updated_at = ? WHERE id = ?")

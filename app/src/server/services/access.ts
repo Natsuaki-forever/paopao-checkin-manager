@@ -129,3 +129,14 @@ export function writeAudit(
     new Date().toISOString(),
   );
 }
+
+export function writeAuthenticationFailure(
+  database: Pick<AppDatabase, "db">,
+  mechanism: "admin_password" | "user_password",
+): void {
+  database.db.prepare(`INSERT INTO audit_events(
+    id, actor_user_id, actor_role, actor_owner, actor_display_name,
+    action, target_type, target_id, target_label, result, metadata_json, created_at
+  ) VALUES(?, NULL, 'user', 0, 'anonymous', 'auth.login', 'authentication', NULL, NULL, 'denied', ?, ?)`)
+    .run(randomUUID(), JSON.stringify({ mechanism }), new Date().toISOString());
+}

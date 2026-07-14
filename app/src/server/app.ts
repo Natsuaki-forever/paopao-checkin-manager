@@ -93,6 +93,16 @@ export async function buildApp(
     }
   });
 
+  app.addHook("onSend", async (request, reply, payload) => {
+    reply.header("X-Content-Type-Options", "nosniff");
+    reply.header("Referrer-Policy", "same-origin");
+    reply.header("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=()");
+    reply.header("Content-Security-Policy", "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'");
+    if (config.isProduction) reply.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    if (request.url.startsWith("/api/")) reply.header("Cache-Control", "no-store");
+    return payload;
+  });
+
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof ZodError) {
       const first = error.issues[0];

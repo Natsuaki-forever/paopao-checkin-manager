@@ -40,8 +40,9 @@ export function loadConfig(cwd = process.cwd()): AppConfig {
   const loginUrl =
     process.env.LOGIN_URL?.trim() || "https://example.com/#/login";
   try {
-    new URL(targetUrl);
-    new URL(loginUrl);
+    if (new URL(targetUrl).protocol !== "https:" || new URL(loginUrl).protocol !== "https:") {
+      throw new Error("Only HTTPS URLs are allowed");
+    }
   } catch {
     throw new Error("TARGET_URL 和 LOGIN_URL 必须是有效网址");
   }

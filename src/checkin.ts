@@ -1,4 +1,6 @@
 import path from "node:path";
+import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
 import { chromium, errors as playwrightErrors } from "playwright";
 import {
   AuthRequiredError,
@@ -27,6 +29,35 @@ interface CheckinApiState {
 
 function assertNotCancelled(config: AppConfig): void {
   if (config.shouldCancel?.()) throw new CancelledCheckinError();
+}
+
+function isPrivateAddress(address: string): boolean {
+  if (isIP(address) === 4) {
+    const [a = Number.NaN, b = Number.NaN] = address.split(".").map(Number);
+    return a === 0 || a === 10 || a === 127 || (a === 169 && b === 254)
+      || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || a >= 224;
+  }
+  const value = address.toLowerCase();
+  return value === "::" || value === "::1" || value.startsWith("fc") || value.startsWith("fd")
+    || /^fe[89ab]/.test(value) || value.startsWith("ff");
+}
+
+async function installNetworkGuard(context: import("playwright").BrowserContext): Promise<void> {
+  if (process.env.NODE_ENV === "test") return;
+  await context.route("**/*", async (route) => {
+    try {
+      const url = new URL(route.request().url());
+      if (["about:", "data:", "blob:"].includes(url.protocol)) return await route.continue();
+      if (url.protocol !== "https:" || url.username || url.password || url.hostname === "localhost" || url.hostname.endsWith(".localhost")) {
+        return await route.abort("blockedbyclient");
+      }
+      const addresses = isIP(url.hostname) ? [{ address: url.hostname }] : await lookup(url.hostname, { all: true, verbatim: true });
+      if (addresses.length === 0 || addresses.some(({ address }) => isPrivateAddress(address))) return await route.abort("blockedbyclient");
+      return await route.continue();
+    } catch {
+      return await route.abort("blockedbyclient");
+    }
+  });
 }
 
 interface BlockingOverlay {
@@ -524,6 +555,7 @@ export async function performCheckin(
     timezoneId: config.timezone,
     storageState: storedState,
   });
+  await installNetworkGuard(context);
   await disableFrontendWindowCloser(context);
   const page = await context.newPage();
   const checkinStates: CheckinApiState[] = [];
