@@ -67,7 +67,7 @@ export function OverviewPage({
 
     <section className="data-section">
       <div className="section-title-row"><h2>当前任务</h2><button className="text-link" onClick={() => onNavigate("tasks")}>管理任务<ChevronRight size={16} /></button></div>
-      {dashboard.tasks.length ? <TaskTable tasks={dashboard.tasks} onNavigate={onNavigate} />
+      {dashboard.tasks.length ? <TaskTable tasks={dashboard.tasks} onManageTask={(taskId) => onTaskAction(taskId, "edit_task")} />
         : <div className="empty-state"><CircleGauge size={28} /><strong>还没有签到任务</strong><p>添加第一个任务后，这里会显示运行计划。</p><button className="button button-primary" onClick={onAddTask}><Plus size={18} />添加任务</button></div>}
     </section>
 
@@ -92,7 +92,7 @@ function AttentionRow({ item, onTaskAction }: { item: DashboardAttentionItem; on
   </article>;
 }
 
-function TaskTable({ tasks, onNavigate }: { tasks: TaskSummary[]; onNavigate: (page: PageId) => void }) {
+function TaskTable({ tasks, onManageTask }: { tasks: TaskSummary[]; onManageTask: (taskId: string) => void }) {
   return <div className="responsive-task-table">
     <div className="responsive-table-head"><span>任务</span><span>状态</span><span>下次执行</span><span>会话</span><span>操作</span></div>
     {tasks.map((task) => <article className="responsive-task-row" key={task.id}>
@@ -100,7 +100,7 @@ function TaskTable({ tasks, onNavigate }: { tasks: TaskSummary[]; onNavigate: (p
       <div data-label="状态"><StatusText task={task} /></div>
       <div data-label="下次执行" className="numeric">{task.nextRun}</div>
       <div data-label="会话"><span className={`session-state session-${task.sessionStatus?.status || "none"}`}>{task.sessionStatus?.status === "valid" ? "有效" : task.sessionStatus?.status === "expired" ? "已失效" : "未建立"}</span></div>
-      <div data-label="操作"><button className="text-link" onClick={() => onNavigate("tasks")}><Play size={15} />管理</button></div>
+      <div data-label="操作"><button className="text-link" onClick={() => onManageTask(task.id)}><Play size={15} />编辑</button></div>
     </article>)}
   </div>;
 }
