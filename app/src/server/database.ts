@@ -640,6 +640,21 @@ export class AppDatabase {
         this.db.prepare("INSERT INTO schema_migrations(version, applied_at) VALUES(13, ?)").run(now());
       })();
     }
+
+    if (version.version < 14) {
+      this.db.transaction(() => {
+        this.db.exec(`CREATE TABLE task_retry_policies (
+          task_id TEXT PRIMARY KEY REFERENCES tasks(id) ON DELETE CASCADE,
+          enabled INTEGER NOT NULL DEFAULT 1,
+          immediate_retries INTEGER NOT NULL DEFAULT 2,
+          delayed_retry_interval_minutes INTEGER NOT NULL DEFAULT 30,
+          delayed_retries INTEGER NOT NULL DEFAULT 3
+        );
+        INSERT INTO task_retry_policies(task_id)
+          SELECT id FROM tasks;`);
+        this.db.prepare("INSERT INTO schema_migrations(version, applied_at) VALUES(14, ?)").run(now());
+      })();
+    }
   }
 
   private seed(seedSampleData: boolean): void {
@@ -822,6 +837,7 @@ export class AppDatabase {
           : undefined,
         hasProxyPassword: Boolean(row.proxy_password_cipher),
         notificationPolicy,
+        retryPolicy: this.getRetryPolicy(row.id),
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         latestRun: latestRow ? runFromRow(latestRow) : undefined,
@@ -930,6 +946,7 @@ export class AppDatabase {
         timestamp,
       );
     this.saveNotificationPolicy(id, input.notificationPolicy);
+    this.saveRetryPolicy(id, input.retryPolicy);
     return this.getTask(id)!;
   }
 
@@ -1013,6 +1030,7 @@ export class AppDatabase {
         id,
       );
     this.saveNotificationPolicy(id, input.notificationPolicy);
+    this.saveRetryPolicy(id, input.retryPolicy);
     if (templateUuid !== existing.template_uuid && existing.template_uuid) {
       this.deleteOrphanPrivateTemplate(existing.template_uuid);
     }
@@ -1067,6 +1085,30 @@ export class AppDatabase {
       notify_scheduled=excluded.notify_scheduled, notify_success=excluded.notify_success,
       notify_failure=excluded.notify_failure, failure_threshold=excluded.failure_threshold`)
       .run(taskId, Number(value.manual), Number(value.scheduled), Number(value.success), Number(value.failure), Math.max(1, value.failureThreshold));
+  }
+
+  getRetryPolicy(taskId: string): import("../shared/types.js").TaskRetryPolicy {
+    const row = this.db.prepare("SELECT * FROM task_retry_policies WHERE task_id = ?").get(taskId) as {
+      enabled: number; immediate_retries: number; delayed_retry_interval_minutes: number; delayed_retries: number;
+    } | undefined;
+    return {
+      enabled: Boolean(row?.enabled ?? 1),
+      immediateRetries: row?.immediate_retries ?? 2,
+      delayedRetryIntervalMinutes: row?.delayed_retry_interval_minutes ?? 30,
+      delayedRetries: row?.delayed_retries ?? 3,
+    };
+  }
+
+  saveRetryPolicy(taskId: string, policy?: import("../shared/types.js").TaskRetryPolicy): void {
+    const value = policy || { enabled: true, immediateRetries: 2, delayedRetryIntervalMinutes: 30, delayedRetries: 3 };
+    this.db.prepare(`INSERT INTO task_retry_policies(
+      task_id, enabled, immediate_retries, delayed_retry_interval_minutes, delayed_retries
+    ) VALUES(?, ?, ?, ?, ?)
+    ON CONFLICT(task_id) DO UPDATE SET enabled=excluded.enabled,
+      immediate_retries=excluded.immediate_retries,
+      delayed_retry_interval_minutes=excluded.delayed_retry_interval_minutes,
+      delayed_retries=excluded.delayed_retries`)
+      .run(taskId, Number(value.enabled), value.immediateRetries, value.delayedRetryIntervalMinutes, value.delayedRetries);
   }
 
   recordTaskOutcome(taskId: string, succeeded: boolean): number {

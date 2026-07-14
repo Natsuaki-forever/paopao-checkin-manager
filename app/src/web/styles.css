@@ -459,6 +459,11 @@ input:focus, select:focus, textarea:focus { border-color: #4386f4; box-shadow: 0
 .template-config-preview pre { margin: 0; padding: 16px; white-space: pre-wrap; word-break: break-word; font-size: 12px; }
 .settings-divider { height: 1px; margin: 24px 0; background: var(--line); }
 .compact-list { display: grid; gap: 8px; }
+.retry-policy { display: grid; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); }
+.retry-policy summary { cursor: pointer; color: var(--text); font-weight: 650; }
+.retry-policy p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.retry-switch { width: fit-content; gap: 9px; }
+.retry-fields { margin-top: 2px; }
 .compact-list.panel { gap: 0; padding: 0; }
 .compact-list > h2 { margin: 0 0 8px; }
 .compact-list.panel > h2 { min-height: 72px; display: flex; align-items: center; margin: 0; padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--surface-2); color: var(--text); font-size: 18px; line-height: 1.28; }

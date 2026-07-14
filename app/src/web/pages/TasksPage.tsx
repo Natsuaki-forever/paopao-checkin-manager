@@ -313,6 +313,7 @@ function taskPayload(task: TaskSummary, enabled = task.enabled): TaskInput {
     proxyMode: task.proxyMode,
     proxyServer: task.proxyServer,
     notificationPolicy: task.notificationPolicy,
+    retryPolicy: task.retryPolicy,
   };
 }
 
@@ -374,6 +375,7 @@ function TaskModal({
     proxyUsername: "",
     proxyPassword: "",
     notificationPolicy: { manual: true, scheduled: true, success: true, failure: true, failureThreshold: 1 },
+    retryPolicy: { enabled: true, immediateRetries: 2, delayedRetryIntervalMinutes: 30, delayedRetries: 3 },
   });
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -514,9 +516,19 @@ function TaskModal({
           <header><h3 id="wizard-plan-title">计划与通知</h3><p>确认执行时间、通知方式和最终配置。</p></header>
           <div className="wizard-grid"><Field label="执行时间" required error={fieldErrors.scheduleTime}><input type="time" value={form.scheduleTime} onChange={(event) => update("scheduleTime", event.target.value)} /></Field><Field label="时区" required error={fieldErrors.timezone}><select value={form.timezone} onChange={(event) => update("timezone", event.target.value)}><option>Asia/Shanghai</option><option>Asia/Hong_Kong</option><option>UTC</option></select></Field></div>
           <Field label="启用任务"><label className="switch"><input type="checkbox" disabled={!capabilities.scheduleTasks} checked={form.enabled} onChange={(event) => update("enabled", event.target.checked)} /><span /></label></Field>
+          <details className="retry-policy" open={false}>
+            <summary>失败重试</summary>
+            <p>仅定时执行生效；不会在任务时区当天 23:59 后开始新的重试。</p>
+            <label className="switch retry-switch"><input type="checkbox" checked={form.retryPolicy?.enabled ?? true} onChange={(event) => update("retryPolicy", { ...form.retryPolicy!, enabled: event.target.checked })} /><span />失败后自动重试</label>
+            {form.retryPolicy?.enabled ? <div className="wizard-grid retry-fields">
+              <Field label="立即重试"><input type="number" min="0" max="5" value={form.retryPolicy.immediateRetries} onChange={(event) => update("retryPolicy", { ...form.retryPolicy!, immediateRetries: Number(event.target.value) })} /></Field>
+              <Field label="后续每隔（分钟）"><input type="number" min="1" max="720" value={form.retryPolicy.delayedRetryIntervalMinutes} onChange={(event) => update("retryPolicy", { ...form.retryPolicy!, delayedRetryIntervalMinutes: Number(event.target.value) })} /></Field>
+              <Field label="后续最多重试"><input type="number" min="0" max="10" value={form.retryPolicy.delayedRetries} onChange={(event) => update("retryPolicy", { ...form.retryPolicy!, delayedRetries: Number(event.target.value) })} /></Field>
+            </div> : null}
+          </details>
           <Field label="通知渠道"><div className="checkbox-row"><label><input type="checkbox" checked={form.notifyServerChan} onChange={(event) => update("notifyServerChan", event.target.checked)} />Server酱</label><label><input type="checkbox" checked={form.notifyWechat} onChange={(event) => update("notifyWechat", event.target.checked)} />企业微信群机器人</label></div></Field>
           <Field label="通知时机"><div className="checkbox-row"><label><input type="checkbox" checked={form.notificationPolicy?.manual} onChange={(event) => updateNotification("manual", event.target.checked)} />手动执行</label><label><input type="checkbox" checked={form.notificationPolicy?.scheduled} onChange={(event) => updateNotification("scheduled", event.target.checked)} />定时执行</label><label><input type="checkbox" checked={form.notificationPolicy?.success} onChange={(event) => updateNotification("success", event.target.checked)} />成功</label><label><input type="checkbox" checked={form.notificationPolicy?.failure} onChange={(event) => updateNotification("failure", event.target.checked)} />失败</label></div></Field>
-          <div className="task-review"><h4>配置摘要</h4><dl><div><dt>任务</dt><dd>{form.name || "未填写"}</dd></div><div><dt>模板</dt><dd>{templates.find((item) => item.id === form.templateUuid)?.name || "未选择"}</dd></div><div><dt>计划</dt><dd>{form.enabled ? `每天 ${form.scheduleTime}（${form.timezone}）` : "已停用"}</dd></div><div><dt>代理</dt><dd>{form.proxyMode === "direct" ? "直接连接" : form.proxyMode === "custom" ? "自定义代理" : "跟随系统"}</dd></div></dl></div>
+          <div className="task-review"><h4>配置摘要</h4><dl><div><dt>任务</dt><dd>{form.name || "未填写"}</dd></div><div><dt>模板</dt><dd>{templates.find((item) => item.id === form.templateUuid)?.name || "未选择"}</dd></div><div><dt>计划</dt><dd>{form.enabled ? `每天 ${form.scheduleTime}（${form.timezone}）` : "已停用"}</dd></div><div><dt>失败重试</dt><dd>{form.retryPolicy?.enabled ? `立即 ${form.retryPolicy.immediateRetries} 次，之后每 ${form.retryPolicy.delayedRetryIntervalMinutes} 分钟最多 ${form.retryPolicy.delayedRetries} 次` : "已关闭"}</dd></div><div><dt>代理</dt><dd>{form.proxyMode === "direct" ? "直接连接" : form.proxyMode === "custom" ? "自定义代理" : "跟随系统"}</dd></div></dl></div>
           <div className="inline-info">保存不会立即访问网站。请在任务列表中单独运行验证。</div>
         </section> : null}
         {error ? <div className="form-error" role="alert">{error}</div> : null}

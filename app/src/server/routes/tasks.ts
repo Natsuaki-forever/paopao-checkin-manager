@@ -62,6 +62,12 @@ const taskSchema = z.object({
     manual: z.boolean(), scheduled: z.boolean(), success: z.boolean(), failure: z.boolean(),
     failureThreshold: z.number().int().min(1).max(100), consecutiveFailures: z.number().optional(),
   }).optional(),
+  retryPolicy: z.object({
+    enabled: z.boolean(),
+    immediateRetries: z.number().int().min(0).max(5),
+    delayedRetryIntervalMinutes: z.number().int().min(1).max(720),
+    delayedRetries: z.number().int().min(0).max(10),
+  }).optional(),
 }).superRefine((value, context) => {
   if (value.proxyMode === "custom" && !value.proxyServer) {
     context.addIssue({

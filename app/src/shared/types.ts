@@ -181,6 +181,7 @@ export interface TaskSummary {
   proxyUsernameMasked?: string;
   hasProxyPassword: boolean;
   notificationPolicy: TaskNotificationPolicy;
+  retryPolicy: TaskRetryPolicy;
   nextRun: string;
   nextRunAt?: string;
 }
@@ -265,6 +266,14 @@ export interface TaskInput {
   proxyUsername?: string;
   proxyPassword?: string;
   notificationPolicy?: TaskNotificationPolicy;
+  retryPolicy?: TaskRetryPolicy;
+}
+
+export interface TaskRetryPolicy {
+  enabled: boolean;
+  immediateRetries: number;
+  delayedRetryIntervalMinutes: number;
+  delayedRetries: number;
 }
 
 export interface TaskNotificationPolicy {
@@ -320,6 +329,7 @@ export interface RunJob {
   trigger: RunTrigger;
   status: RunJobStatus;
   phase: RunPhase;
+  scheduledKey?: string;
   queuedAt: string;
   startedAt?: string;
   heartbeatAt?: string;

@@ -31,6 +31,7 @@ function fromRow(row: JobRow): RunJob {
     trigger: row.trigger,
     status: row.status,
     phase: row.phase,
+    scheduledKey: row.scheduled_key || undefined,
     queuedAt: row.queued_at,
     startedAt: row.started_at || undefined,
     heartbeatAt: row.heartbeat_at || undefined,

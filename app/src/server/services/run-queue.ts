@@ -3,6 +3,7 @@ import type { AppDatabase } from "../database.js";
 import { RunJobRepository } from "../repositories/run-job.js";
 import { redactText } from "../security/redaction.js";
 import type { CheckinRunEngine } from "./run-engine.js";
+import { zonedMinute } from "./next-run.js";
 
 export class RunQueue {
   readonly jobs: RunJobRepository;
@@ -11,7 +12,7 @@ export class RunQueue {
   private wakeTimer?: NodeJS.Timeout;
 
   constructor(
-    database: AppDatabase,
+    private readonly database: AppDatabase,
     private readonly engine: CheckinRunEngine,
   ) {
     this.jobs = new RunJobRepository(database.db);
@@ -74,32 +75,43 @@ export class RunQueue {
           }
         }, 5_000);
         heartbeat.unref();
+        const task = this.database.getTask(queued.taskId);
+        if (!task) throw new Error("签到任务不存在");
+        const retryNumber = queued.retryNumber || 0;
+        const policy = task.retryPolicy;
+        const finalDelayedAttempt = retryNumber >= policy.delayedRetries;
         const record = await this.engine.runTask(
           queued.taskId,
           queued.trigger,
-          this.jobs.getScheduledKey(queued.id),
+          runKey(this.jobs.getScheduledKey(queued.id), retryNumber),
           async (phase) => {
             if (this.jobs.get(queued.id)?.cancelRequested) {
               this.engine.requestCancellation(queued.taskId);
             }
             this.jobs.updatePhase(queued.id, phase);
           },
+          {
+            immediateRetries: queued.trigger === "scheduled" && retryNumber === 0 && policy.enabled
+              ? policy.immediateRetries : 0,
+            notificationMode: retryNumber === 0 || finalDelayedAttempt ? "all" : "success-only",
+          },
         );
         if (record?.status === "cancelled") {
           this.jobs.finishCancelled(queued.id);
         } else if (record && !["success", "already_checked"].includes(record.status)) {
           const failureClass = classifyFailure(record.status, record.message);
-          const retryNumber = this.jobs.get(queued.id)?.retryNumber || 0;
-          const delays = [60_000, 600_000, 1_800_000];
-          const maxRetries = failureClass === "page" ? 1
-            : ["network", "proxy", "assertion"].includes(failureClass) ? 3 : 0;
-          if (retryNumber < maxRetries) {
-            this.jobs.scheduleRetry(queued.id, failureClass, delays[retryNumber] || delays.at(-1)!);
+          const maxRetries = policy.enabled && ["network", "proxy", "page", "assertion"].includes(failureClass)
+            ? policy.delayedRetries : 0;
+          const delayMs = policy.delayedRetryIntervalMinutes * 60_000;
+          if (retryNumber < maxRetries && retryStaysToday(queued, task.timezone, delayMs)) {
+            this.jobs.scheduleRetry(queued.id, failureClass, delayMs);
           } else {
             this.jobs.finish(queued.id, "failed", { runId: record.id, errorDetail: record.message });
           }
-        } else {
+        } else if (record) {
           this.jobs.finish(queued.id, "succeeded", { runId: record?.id });
+        } else {
+          this.jobs.finish(queued.id, "failed", { errorDetail: "未生成签到运行记录，已安全停止" });
         }
       } catch (error) {
         const current = this.jobs.get(queued.id);
@@ -115,6 +127,17 @@ export class RunQueue {
       }
     }
   }
+}
+
+function runKey(scheduledKey: string | undefined, retryNumber: number): string | undefined {
+  return scheduledKey ? `${scheduledKey}:attempt:${retryNumber}` : undefined;
+}
+
+function retryStaysToday(job: RunJob, timezone: string, delayMs: number): boolean {
+  const scheduledDate = job.scheduledKey?.split(":")[1];
+  if (!scheduledDate) return false;
+  const next = zonedMinute(new Date(Date.now() + delayMs), timezone);
+  return next.date === scheduledDate && next.time <= "23:59";
 }
 
 function classifyFailure(status: string, message: string): NonNullable<RunJob["failureClass"]> {

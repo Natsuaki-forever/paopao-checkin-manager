@@ -103,6 +103,7 @@ describe("database migration v1 to current", () => {
         DROP TABLE manual_session_tokens;
         DROP TABLE daily_summary_log;
         DROP TABLE task_notification_policies;
+        DROP TABLE task_retry_policies;
         DROP TABLE templates;
         DROP TABLE run_jobs;
         DROP INDEX idx_runs_owner_user_id_finished_at;
@@ -130,7 +131,7 @@ describe("database migration v1 to current", () => {
       migrated.db
         .prepare("SELECT MAX(version) AS version FROM schema_migrations")
         .get(),
-    ).toMatchObject({ version: 13 });
+    ).toMatchObject({ version: 14 });
     expect(migrated.getSettings()).toMatchObject({ screenshotMaxMb: 500, registrationMode: "invite", auditRetentionDays: 180 });
     expect(migrated.listTasks()[0]).toMatchObject({
       id: task.id,
@@ -144,6 +145,7 @@ describe("database migration v1 to current", () => {
       proxyServer: "",
       hasProxyPassword: false,
       ownerUserId: undefined,
+      retryPolicy: { enabled: true, immediateRetries: 2, delayedRetryIntervalMinutes: 30, delayedRetries: 3 },
     });
     expect(migrated.getTaskSecrets(task.id)).toEqual({
       username: "existing@example.com",

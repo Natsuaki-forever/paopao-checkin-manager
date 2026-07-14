@@ -141,8 +141,6 @@ export function SettingsPage({ notify }: { notify: (message: string) => void }) 
       {activeTab === "execution" ? <section className="panel settings-section">
         <div className="settings-section-title"><TimerReset size={22} /><div><h2>执行设置</h2><p>后续接入真实适配器时使用的全局默认值。</p></div></div>
         <div className="settings-grid">
-          <NumberField label="重试次数" value={settings.retryCount} min={0} max={10} onChange={(value) => update("retryCount", value)} suffix="次" />
-          <NumberField label="重试间隔" value={settings.retryDelayMs / 1000} min={0} max={300} onChange={(value) => update("retryDelayMs", value * 1000)} suffix="秒" />
           <NumberField label="页面导航超时" value={settings.navigationTimeoutMs / 1000} min={1} max={300} onChange={(value) => update("navigationTimeoutMs", value * 1000)} suffix="秒" />
           <NumberField label="页面操作超时" value={settings.actionTimeoutMs / 1000} min={1} max={300} onChange={(value) => update("actionTimeoutMs", value * 1000)} suffix="秒" />
         </div>

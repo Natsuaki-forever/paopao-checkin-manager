@@ -53,6 +53,7 @@ export class CheckinRunEngine {
     trigger: RunTrigger,
     scheduledKey?: string,
     onPhase?: (phase: Exclude<RunPhase, "queued">) => void | Promise<void>,
+    options: { immediateRetries?: number; notificationMode?: "all" | "success-only" | "none" } = {},
   ): Promise<RunRecord | undefined> {
     if (scheduledKey) {
       const exists = this.database.db
@@ -78,7 +79,7 @@ export class CheckinRunEngine {
     try {
       await guardedPhase(this.mode === "production" ? "login" : "checkin");
       let record = this.mode === "production"
-        ? await this.runProduction(task.id, task.name, trigger, guardedPhase)
+        ? await this.runProduction(task.id, task.name, trigger, guardedPhase, options.immediateRetries)
         : await this.runSimulation(task.id, task.name, trigger);
       if (this.cancellationRequests.has(taskId)) {
         record = cancelledRecord(task.id, task.name, trigger, record.startedAt);
@@ -87,7 +88,9 @@ export class CheckinRunEngine {
         task.id,
         record.status === "success" || record.status === "already_checked",
       );
-      if (this.notifier && record.status !== "cancelled") {
+      const succeeded = record.status === "success" || record.status === "already_checked";
+      if (this.notifier && record.status !== "cancelled" && options.notificationMode !== "none"
+        && (options.notificationMode !== "success-only" || succeeded)) {
         await guardedPhase("notify");
         record.phase = "notify";
         record.notificationResult = await this.notifier.sendForRun(task, record);
@@ -130,6 +133,7 @@ export class CheckinRunEngine {
     taskName: string,
     trigger: RunTrigger,
     onPhase?: (phase: Exclude<RunPhase, "queued">) => void | Promise<void>,
+    immediateRetries?: number,
   ): Promise<RunRecord> {
     if (!this.adapters) throw new Error("真实签到适配器尚未初始化");
     const task = this.database.getTask(taskId)!;
@@ -146,7 +150,7 @@ export class CheckinRunEngine {
     const storedSession = this.sessions?.getStatus(taskId).status === "valid"
       ? this.sessions.get(taskId)
       : undefined;
-    const maxAttempts = settings.retryCount + 1;
+    const maxAttempts = Math.max(1, (immediateRetries ?? (trigger === "scheduled" ? task.retryPolicy.immediateRetries : settings.retryCount)) + 1);
     const overallStartedAt = new Date();
     let finalAttempt = 1;
 
