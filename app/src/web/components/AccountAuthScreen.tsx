@@ -124,9 +124,12 @@ export function AccountAuthScreen({
 
   return (
     <div className="auth-page">
-      <ThemeToggle className="auth-theme-toggle" />
-      <AuthVisual />
-      <section className="auth-card">
+      <header className="auth-toolbar">
+        <ThemeToggle className="auth-theme-toggle" />
+      </header>
+      <main className="auth-content">
+        <AuthVisual />
+        <section className={`auth-card auth-card-${view}`}>
         <div className={`auth-mascot auth-mascot-${mascot.pose}`} key={mascot.pose} aria-label={mascot.label} role="img">
           <img src={mascot.src} alt="" />
         </div>
@@ -223,7 +226,8 @@ export function AccountAuthScreen({
             <UserRound size={17} />{copy.backToUser}
           </button>
         )}
-      </section>
+        </section>
+      </main>
       <footer className="auth-attribution">
         <span>炮炮签到站 · Paopao Checkin Manager</span>
         <a href="https://github.com/Natsuaki-forever/paopao-checkin-manager/issues" target="_blank" rel="noreferrer">NatsuAki · GitHub Issues</a>

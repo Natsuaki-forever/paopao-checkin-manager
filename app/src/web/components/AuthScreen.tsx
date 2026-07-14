@@ -41,9 +41,12 @@ export function AuthScreen({ mode, runtimeMode, onSuccess }: AuthScreenProps) {
 
   return (
     <div className="auth-page">
-      <ThemeToggle className="auth-theme-toggle" />
-      <AuthVisual />
-      <section className="auth-card">
+      <header className="auth-toolbar">
+        <ThemeToggle className="auth-theme-toggle" />
+      </header>
+      <main className="auth-content">
+        <AuthVisual />
+        <section className="auth-card">
         <div className="auth-brand"><CalendarDays size={32} />炮炮签到站</div>
         <div className="auth-icon"><ShieldCheck size={31} /></div>
         <h1>{mode === "setup" ? "首次设置" : "管理员登录"}</h1>
@@ -96,7 +99,8 @@ export function AuthScreen({ mode, runtimeMode, onSuccess }: AuthScreenProps) {
             ? "当前为正式模式，任务执行会访问已配置的网站。"
             : "当前为本地模拟模式，不会访问外部网站或发送通知。"}
         </div>
-      </section>
+        </section>
+      </main>
     </div>
   );
 }
