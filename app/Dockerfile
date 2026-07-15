@@ -1,30 +1,71 @@
-FROM mcr.microsoft.com/playwright:v1.61.0-noble AS builder
+# syntax=docker/dockerfile:1.7
+
+ARG PLAYWRIGHT_IMAGE=mcr.microsoft.com/playwright:v1.61.0-noble
+
+FROM ${PLAYWRIGHT_IMAGE} AS dependency-manifests
+
+WORKDIR /manifests
+COPY scripts/normalize-docker-manifest.mjs /tools/normalize-docker-manifest.mjs
+COPY package.json package-lock.json ./root/
+COPY app/package.json app/package-lock.json ./manager/
+RUN node /tools/normalize-docker-manifest.mjs /manifests/root \
+    && node /tools/normalize-docker-manifest.mjs /manifests/manager
+
+FROM ${PLAYWRIGHT_IMAGE} AS build-base
 
 WORKDIR /app
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential python3 \
+    && apt-get install -y --no-install-recommends build-essential ccache python3 \
     && rm -rf /var/lib/apt/lists/*
+ENV PATH="/usr/lib/ccache:${PATH}" \
+    CCACHE_DIR=/root/.cache/ccache \
+    CCACHE_MAXSIZE=512M
+
+FROM build-base AS root-deps
+
+WORKDIR /app
+COPY --from=dependency-manifests /manifests/root/package.json /manifests/root/package-lock.json ./
+RUN --mount=type=cache,id=paopao-root-npm,target=/root/.npm,sharing=locked \
+    npm ci
+
+FROM root-deps AS root-prod-deps
+RUN npm prune --omit=dev
+
+FROM build-base AS manager-deps
+
+WORKDIR /app/manager
+COPY --from=dependency-manifests /manifests/manager/package.json /manifests/manager/package-lock.json ./
+RUN --mount=type=cache,id=paopao-manager-npm,target=/root/.npm,sharing=locked \
+    --mount=type=cache,id=paopao-manager-node-gyp,target=/root/.cache/node-gyp,sharing=locked \
+    --mount=type=cache,id=paopao-manager-ccache,target=/root/.cache/ccache,sharing=locked \
+    ccache --max-size "$CCACHE_MAXSIZE" \
+    && npm ci \
+    && ccache --show-stats
+
+FROM build-base AS builder
+
+WORKDIR /app
+COPY --from=root-deps /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
-RUN npm ci
 COPY src ./src
 COPY tests ./tests
 COPY tsconfig.json ./
 RUN npm run build
 
 WORKDIR /app/manager
+COPY --from=manager-deps /app/manager/node_modules ./node_modules
 COPY app/package.json app/package-lock.json ./
-RUN npm ci
 COPY app/index.html app/tsconfig*.json app/vite.config.ts app/vitest.config.ts ./
 COPY app/public ./public
 COPY app/src ./src
 COPY app/tests ./tests
 RUN npm test && npm run build && npm prune --omit=dev
 
-FROM mcr.microsoft.com/playwright:v1.61.0-noble
+FROM ${PLAYWRIGHT_IMAGE}
 
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+COPY --from=root-prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
 WORKDIR /app/manager
