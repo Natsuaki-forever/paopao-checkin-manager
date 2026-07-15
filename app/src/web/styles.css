@@ -494,7 +494,6 @@ html[data-theme="dark"] .template-config-preview { border-color: #364152; }
 .theme-toggle { width: auto; min-height: 38px; display: inline-flex; align-items: center; gap: 7px; padding: 0 8px 0 10px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: #4a5565; }
 .theme-toggle select { width: auto; min-height: 34px; padding: 0 26px 0 0; border: 0; background: transparent; box-shadow: none; color: inherit; font-size: 13px; }
 .theme-toggle select:focus { box-shadow: none; }
-.auth-theme-toggle { position: fixed; top: 22px; right: 24px; z-index: 2; }
 .auth-switch { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 18px; color: var(--muted); font-size: 13px; }
 .admin-entry { width: 100%; min-height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 14px; border: 0; border-top: 1px solid var(--line-soft); background: transparent; color: var(--muted); padding-top: 15px; }
 .admin-entry:hover { color: var(--blue); }

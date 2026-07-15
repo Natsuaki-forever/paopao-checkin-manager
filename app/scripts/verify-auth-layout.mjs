@@ -6,6 +6,7 @@ const target = process.env.AUTH_LAYOUT_URL || process.argv[2] || "http://127.0.0
 const mockAuth = process.env.AUTH_LAYOUT_MOCK === "1";
 const screenshotDir = process.env.AUTH_LAYOUT_SCREENSHOT_DIR;
 const viewports = [
+  { name: "low-height-desktop", width: 2048, height: 560 },
   { name: "wide-short", width: 2048, height: 924 },
   { name: "desktop", width: 1920, height: 1080 },
   { name: "compact-desktop", width: 1440, height: 900 },
