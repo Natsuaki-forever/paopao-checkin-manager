@@ -65,14 +65,14 @@ COPY app/package.json app/package-lock.json ./
 COPY --from=builder /app/manager/node_modules ./node_modules
 COPY --from=builder /app/manager/dist ./dist
 
-# Keep the Playwright-maintained Chromium runtime and its verified OS
-# dependencies, but remove browser engines this application never launches.
-RUN rm -rf /ms-playwright/firefox-* /ms-playwright/webkit-* \
-    && mkdir -p /app/manager/data/screenshots \
+# PLAYWRIGHT_IMAGE is a pinned, Chromium-only runtime prepared by the
+# deployment workflow. It retains Playwright's verified Chromium dependencies.
+RUN mkdir -p /app/manager/data/screenshots \
     && chown -R pwuser:pwuser /app/manager/data
 
 USER pwuser
-ENV NODE_ENV=production \
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
+    NODE_ENV=production \
     CHECKIN_MODE=production \
     CHECKIN_MANAGER_HOST=0.0.0.0 \
     CHECKIN_MANAGER_PORT=8787

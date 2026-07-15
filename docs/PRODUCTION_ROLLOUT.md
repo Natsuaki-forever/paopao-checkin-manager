@@ -7,10 +7,24 @@
 - 应用：炮炮签到站（Paopao Checkin Manager）
 - 正式版本：`0.11.0`
 - 正式镜像：`paopao-checkin-manager:0.11.0`
-- 当前验证候选：`0.11.4-rc.1`（待完成构建与部署验证）
+- 当前验证候选：`0.11.4-rc.3`（已部署，等待项目所有者检视）
 - 数据库迁移：v14
 - 正式注册：注册总开关开启，系统设置采用邀请注册。
 - 功能开关：Queue、Session 开启；HTTP Flow 关闭。
+
+## 0.11.4-rc.3 扁平 Chromium 运行时修复候选
+
+- 候选版本与镜像：`0.11.4-rc.3` / `paopao-checkin-manager:0.11.4-rc.3`；无数据库迁移。
+- 修复：扁平 Docker 基础镜像不保留原镜像环境变量，因此应用显式设置 `PLAYWRIGHT_BROWSERS_PATH=/ms-playwright`，保证 Playwright 使用基础层中的 Chromium。
+- 验证：完整 Docker 构建、64 项测试、Chromium 实际启动、容器健康检查、内外 HTTPS 均通过；容器 healthy、重启次数 0，BuildKit 缓存 421MB，官方完整 Playwright 源镜像已删除。已交由项目所有者检视；确认前不得转为正式版本。
+
+## 0.11.4-rc.2 扁平 Chromium 运行时验证候选（未通过）
+
+- 范围：仅生成并使用与 `mcr.microsoft.com/playwright:v1.61.0-noble` 严格绑定的扁平 Chromium-only 基础镜像，移除 Firefox 与 WebKit 的实际文件层；不改变数据库、API、权限、任务执行逻辑、环境变量或用户操作。
+- 部署：基础镜像生成必须由部署流程管理并固定版本/摘要；构建失败不得替换现网容器，成功后只保留当前镜像、一个回退镜像、两份文件备份和最多 512MB 的 BuildKit 缓存。
+- 验证：完整 Docker 构建、64 项测试、容器内 Chromium 实际启动、非 root 身份、健康接口、公网 HTTPS、镜像字节大小和 Docker 实际磁盘占用均需核验。
+- 回退：`0.11.4-rc.1` 在 `rc.2` 验证期内保留为回退点。因保留旧 Playwright 完整基础层，首次部署 `rc.2` 可能暂时增加磁盘占用；旧回退淘汰后才评估真实净节省。
+- 状态：容器健康与完整构建通过，但 Chromium 实际启动发现导入基础镜像丢失浏览器路径环境变量；不转正，修复进入 `0.11.4-rc.3`。
 
 ## 0.11.4-rc.1 Chromium 运行时镜像验证候选
 
