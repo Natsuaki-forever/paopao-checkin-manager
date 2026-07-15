@@ -79,6 +79,8 @@ try {
           themeOverlapsCard: overlaps(theme, card),
           footerOverlapsCard: overlaps(footer, card),
           visualOverlapsCard: visual ? overlaps(visual, card) : false,
+          themeTopGap: theme ? theme.top : null,
+          footerBottomGap: footer ? innerHeight - footer.bottom : null,
         };
       });
 
@@ -88,7 +90,12 @@ try {
       const outsideViewport = [geometry.card, geometry.theme, geometry.footer]
         .filter(Boolean)
         .some((box) => box.left < -tolerance || box.right > geometry.viewport.width + tolerance);
-      if (horizontalOverflow || rootHasMultipleColumns || outsideViewport || geometry.themeOverlapsCard || geometry.footerOverlapsCard || geometry.visualOverlapsCard || consoleErrors.length) {
+      const pageFitsViewport = geometry.document.scrollHeight <= geometry.viewport.height + tolerance;
+      const chromeIsAnchored = !pageFitsViewport || (
+        geometry.themeTopGap <= 80
+        && geometry.footerBottomGap <= 80
+      );
+      if (horizontalOverflow || rootHasMultipleColumns || outsideViewport || geometry.themeOverlapsCard || geometry.footerOverlapsCard || geometry.visualOverlapsCard || !chromeIsAnchored || consoleErrors.length) {
         fail(`认证页布局检查失败：${viewport.name}/${view.name}`, { geometry, consoleErrors });
       }
       if (screenshotDir) {

@@ -2,8 +2,7 @@
   min-height: 100dvh;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto auto;
-  align-content: center;
+  grid-template-rows: auto minmax(max-content, 1fr) auto;
   place-items: stretch;
   overflow-x: clip;
   gap: clamp(12px, 2vh, 24px);
