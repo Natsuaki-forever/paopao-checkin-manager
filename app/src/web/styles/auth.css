@@ -1,8 +1,10 @@
 .auth-page {
   min-height: 100dvh;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   place-items: stretch;
+  overflow-x: clip;
   gap: clamp(12px, 2vh, 24px);
   padding: clamp(18px, 3vh, 42px) clamp(28px, 5vw, 96px) clamp(18px, 3vh, 32px);
   background-color: var(--bg);
@@ -11,8 +13,8 @@
     linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
   background-size: 64px 64px;
 }
-.auth-toolbar { min-height: 52px; display: flex; align-items: flex-start; justify-content: flex-end; }
-.auth-content { min-width: max-content; display: grid; grid-template-columns: minmax(520px, 600px) minmax(580px, 628px); align-items: center; justify-content: center; gap: clamp(56px, 6vw, 150px); }
+.auth-toolbar { grid-column: 1; min-height: 52px; width: 100%; display: flex; align-items: flex-start; justify-content: flex-end; }
+.auth-content { grid-column: 1; width: 100%; min-width: 0; display: grid; grid-template-columns: minmax(520px, 600px) minmax(580px, 628px); align-items: center; justify-content: center; gap: clamp(56px, 6vw, 150px); }
 .auth-content > .auth-visual { grid-column: 1; grid-row: 1; }
 .auth-visual { width: min(100%, 600px); display: grid; justify-items: center; justify-self: center; color: var(--text); }
 .auth-orbit { width: min(42vw, 560px); position: relative; aspect-ratio: 1; }
@@ -47,7 +49,7 @@
 .auth-submit { min-height: 48px; }
 .admin-entry { min-height: 34px; margin: 12px auto 0; padding: 0 8px; border: 0; background: transparent; color: var(--muted); font-size: 13px; }
 .admin-entry:hover { color: var(--accent); }
-.auth-attribution { display: grid; gap: 4px; justify-items: center; padding-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.45; text-align: center; }
+.auth-attribution { grid-column: 1; width: 100%; display: grid; gap: 4px; justify-items: center; padding-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.45; text-align: center; }
 .auth-attribution a { color: var(--accent); text-decoration: none; }
 .auth-attribution a:hover { text-decoration: underline; }
 
@@ -66,7 +68,7 @@
   .auth-card-register form { margin-top: 20px; }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1300px) {
   .auth-page { padding: 20px; background-image: none; }
   .auth-toolbar { min-height: 48px; }
   .auth-content { min-width: 0; grid-template-columns: minmax(0, 628px); }
