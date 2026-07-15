@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1.7
 
+ARG NODE_IMAGE=node:24-bookworm-slim
 ARG PLAYWRIGHT_IMAGE=mcr.microsoft.com/playwright:v1.61.0-noble
 
-FROM ${PLAYWRIGHT_IMAGE} AS dependency-manifests
+FROM ${NODE_IMAGE} AS dependency-manifests
 
 WORKDIR /manifests
 COPY scripts/normalize-docker-manifest.mjs /tools/normalize-docker-manifest.mjs
@@ -11,15 +12,10 @@ COPY app/package.json app/package-lock.json ./manager/
 RUN node /tools/normalize-docker-manifest.mjs /manifests/root \
     && node /tools/normalize-docker-manifest.mjs /manifests/manager
 
-FROM ${PLAYWRIGHT_IMAGE} AS build-base
+FROM ${NODE_IMAGE} AS build-base
 
 WORKDIR /app
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential ccache python3 \
-    && rm -rf /var/lib/apt/lists/*
-ENV PATH="/usr/lib/ccache:${PATH}" \
-    CCACHE_DIR=/root/.cache/ccache \
-    CCACHE_MAXSIZE=512M
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 FROM build-base AS root-deps
 
@@ -36,11 +32,7 @@ FROM build-base AS manager-deps
 WORKDIR /app/manager
 COPY --from=dependency-manifests /manifests/manager/package.json /manifests/manager/package-lock.json ./
 RUN --mount=type=cache,id=paopao-manager-npm,target=/root/.npm,sharing=locked \
-    --mount=type=cache,id=paopao-manager-node-gyp,target=/root/.cache/node-gyp,sharing=locked \
-    --mount=type=cache,id=paopao-manager-ccache,target=/root/.cache/ccache,sharing=locked \
-    ccache --max-size "$CCACHE_MAXSIZE" \
-    && npm ci \
-    && ccache --show-stats
+    npm ci
 
 FROM build-base AS builder
 
@@ -72,7 +64,11 @@ WORKDIR /app/manager
 COPY app/package.json app/package-lock.json ./
 COPY --from=builder /app/manager/node_modules ./node_modules
 COPY --from=builder /app/manager/dist ./dist
-RUN mkdir -p /app/manager/data/screenshots \
+
+# Keep the Playwright-maintained Chromium runtime and its verified OS
+# dependencies, but remove browser engines this application never launches.
+RUN rm -rf /ms-playwright/firefox-* /ms-playwright/webkit-* \
+    && mkdir -p /app/manager/data/screenshots \
     && chown -R pwuser:pwuser /app/manager/data
 
 USER pwuser

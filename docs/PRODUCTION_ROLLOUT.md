@@ -7,10 +7,18 @@
 - 应用：炮炮签到站（Paopao Checkin Manager）
 - 正式版本：`0.11.0`
 - 正式镜像：`paopao-checkin-manager:0.11.0`
-- 当前验证候选：`0.11.3-rc.3`（已部署，等待项目所有者检视）
+- 当前验证候选：`0.11.4-rc.1`（待完成构建与部署验证）
 - 数据库迁移：v14
 - 正式注册：注册总开关开启，系统设置采用邀请注册。
 - 功能开关：Queue、Session 开启；HTTP Flow 关闭。
+
+## 0.11.4-rc.1 Chromium 运行时镜像验证候选
+
+- 候选版本与镜像：`0.11.4-rc.1` / `paopao-checkin-manager:0.11.4-rc.1`；无数据库迁移。
+- 运行时收敛：最终镜像保留 Playwright 官方已验证的 Chromium 与系统依赖，删除 Firefox 与 WebKit；不再在构建时重复执行系统依赖安装。
+- 构建策略：依赖阶段设置 `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1`；构建层与 Playwright 运行时对齐到 Node 24，`better-sqlite3` 使用同 ABI 的预编译二进制，不再强制下载编译器、Python、node-gyp 与 ccache。
+- 兼容性：应用仍使用同一 Playwright 版本、同一浏览器调用方式和 UID/GID 1001 的非 root 用户；不改变 API、数据库、权限、功能开关或用户操作。
+- 验证门槛：Docker 完整构建、全部测试、Chromium 实际启动、容器健康检查、内外 HTTPS 和镜像尺寸对比均通过后，才交由项目所有者检视；确认前不得转为正式版本。
 
 ## 0.11.3-rc.3 认证页与构建缓存验证候选
 
