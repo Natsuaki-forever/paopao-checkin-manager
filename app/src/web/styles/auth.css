@@ -2,7 +2,7 @@
   min-height: 100dvh;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(min-content, 1fr) auto;
   place-items: stretch;
   overflow-x: clip;
   gap: clamp(12px, 2vh, 24px);
@@ -81,7 +81,7 @@
 }
 
 @media (min-width: 1600px) {
-  .auth-page {
+  .auth-content {
     grid-template-columns: 620px 628px;
     gap: clamp(180px, 14vw, 300px);
   }

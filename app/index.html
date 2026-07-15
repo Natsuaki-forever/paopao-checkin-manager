@@ -6,19 +6,7 @@
     <meta name="theme-color" content="#ffffff" />
     <link rel="icon" type="image/png" href="/favicon-transparent.png" />
     <title>炮炮签到站</title>
-    <script>
-      (() => {
-        try {
-          const saved = localStorage.getItem("paopao-theme-v1");
-          const preference = saved === "light" || saved === "dark" ? saved : "system";
-          const theme = preference === "system"
-            ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-            : preference;
-          document.documentElement.dataset.theme = theme;
-          document.documentElement.style.colorScheme = theme;
-        } catch {}
-      })();
-    </script>
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>
