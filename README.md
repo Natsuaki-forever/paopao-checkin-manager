@@ -43,9 +43,6 @@ docker compose -f docker-compose.production.yml up -d --build
 | 浏览器引擎 | Playwright |
 | 容器化 | Docker |
 ## 文档
-- [完整开发参考](docs/REFERENCE.md)
-- [项目概览](docs/PROJECT_OVERVIEW.md)
-- [正式发布与回退](docs/PRODUCTION_ROLLOUT.md)
-- [长期 UX 质量参考](docs/UX_QUALITY_REFERENCE.md)
+
 - [版本变更](CHANGELOG.md)
 
